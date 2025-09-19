@@ -18,7 +18,6 @@
       "role": "Developer"
     }
   ],
-  "homepage": "https://github.com/alekseyr1987/dropbox-uploader-php",
   "require": {
     "php": "^7.2.5 || ^8.0",
     "guzzlehttp/guzzle": "^7.0"
