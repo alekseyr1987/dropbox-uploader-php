@@ -1,0 +1,6 @@
+{
+  "name": "dropbox/uploader-api",
+  "description": "Dropbox uploader PHP library",
+  "type": "library",
+  "license": "MIT"
+}
