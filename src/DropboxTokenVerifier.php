@@ -6,7 +6,7 @@ use RuntimeException;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
-final class Verification
+final class DropboxTokenVerifier
 {
     private array $config;
     private string $access_token;
