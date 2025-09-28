@@ -2,7 +2,7 @@
 
 namespace Dbox\UploaderApi;
 
-final class DropboxFetchTokenResult
+final class DropboxApiClientFetchTokenResult
 {
     private bool $success;
     private ?string $accessToken;

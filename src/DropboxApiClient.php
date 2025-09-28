@@ -16,16 +16,16 @@ final class DropboxApiClient
         $this->client = $client;
     }
 
-    public static function create(array $config = []): DropboxCreateClientResult
+    public static function create(array $config = []): DropboxApiClientCreateResult
     {
         try {
             $client = new Client($config);
 
-            return DropboxCreateClientResult::success(new self($client));
+            return DropboxApiClientCreateResult::success(new self($client));
         } catch (Throwable $e) {
             $errorInfo = ExceptionAnalyzer::analyze($e);
 
-            return DropboxCreateClientResult::failure([
+            return DropboxApiClientCreateResult::failure([
                 'type' => $errorInfo->type,
                 'message' => $errorInfo->message,
                 'time' => time()
@@ -33,7 +33,7 @@ final class DropboxApiClient
         }
     }
 
-    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxFetchTokenResult
+    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxApiClientFetchTokenResult
     {
         $attempt = 0;
 
@@ -58,12 +58,12 @@ final class DropboxApiClient
                     throw new RuntimeException('Required fields are missing in the Dropbox API response.');
                 }
 
-                return DropboxFetchTokenResult::success($fields['access_token']);
+                return DropboxApiClientFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
                 $errorInfo = ExceptionAnalyzer::analyze($e);
 
                 if (!$errorInfo->repeat) {
-                    return DropboxFetchTokenResult::failure([
+                    return DropboxApiClientFetchTokenResult::failure([
                         'action' => 'Fetching Dropbox oauth2/token',
                         'attempt' => $attempt,
                         'type' => $errorInfo->type,
@@ -74,7 +74,7 @@ final class DropboxApiClient
             }
         }
 
-        return DropboxFetchTokenResult::failure([
+        return DropboxApiClientFetchTokenResult::failure([
             'action' => 'Fetching Dropbox oauth2/token',
             'attempt' => $attempt,
             'type' => 'MaxAttemptsExceeded',

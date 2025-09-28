@@ -2,7 +2,7 @@
 
 namespace Dbox\UploaderApi;
 
-final class DropboxCreateClientResult
+final class DropboxApiClientCreateResult
 {
     private bool $success;
     private ?DropboxApiClient $client;
