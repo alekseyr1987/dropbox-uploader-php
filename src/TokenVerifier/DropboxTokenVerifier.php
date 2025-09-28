@@ -1,6 +1,9 @@
 <?php
 
-namespace Dbox\UploaderApi;
+namespace Dbox\UploaderApi\TokenVerifier;
+
+use Dbox\UploaderApi\ApiClient\DropboxApiClient;
+use Dbox\UploaderApi\Exception\ExceptionAnalyzer;
 
 use RuntimeException;
 use InvalidArgumentException;

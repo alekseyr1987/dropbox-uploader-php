@@ -1,6 +1,8 @@
 <?php
 
-namespace Dbox\UploaderApi;
+namespace Dbox\UploaderApi\ApiClient;
+
+use Dbox\UploaderApi\Exception\ExceptionAnalyzer;
 
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;

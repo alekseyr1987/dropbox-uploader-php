@@ -1,6 +1,6 @@
 <?php
 
-namespace Dbox\UploaderApi;
+namespace Dbox\UploaderApi\Exception;
 
 final class ExceptionAnalyzerInfoResult
 {
