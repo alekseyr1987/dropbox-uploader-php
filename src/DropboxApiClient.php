@@ -13,9 +13,26 @@ final class DropboxApiClient
 {
     private Client $client;
 
-    public function __construct()
+    private function __construct(Client $client)
     {
-        $this->client = new Client();
+        $this->client = $client;
+    }
+
+    public static function create(array $config = []): DropboxCreateClientResult
+    {
+        try {
+            $client = new Client($config);
+
+            return DropboxCreateClientResult::success(new self($client));
+        } catch (Throwable $e) {
+            ['type' => $type, 'message' => $message] = self::analyzeException($e);
+
+            return DropboxCreateClientResult::failure([
+                'type' => $type,
+                'message' => $message,
+                'time' => time()
+            ]);
+        }
     }
 
     public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): array
