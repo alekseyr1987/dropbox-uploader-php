@@ -5,6 +5,7 @@ namespace Dbox\UploaderApi;
 use RuntimeException;
 use InvalidArgumentException;
 use UnexpectedValueException;
+use Throwable;
 
 final class DropboxTokenVerifier
 {
@@ -81,28 +82,41 @@ final class DropboxTokenVerifier
         }
     }
 
-    public function verify(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): array
+    public function verify(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxVerifyTokenResult
     {
-        $result = [
-            'success' => true,
-            'error' => []
-        ];
-
-        if (!$this->handleStoreTypeAction('validate')) {
-            $apiClient = new DropboxApiClient();
-
-            $result = $apiClient->fetchDropboxToken($dropboxRefreshToken, $dropboxAppKey, $dropboxAppSecret);
-
-            if ($result['success']) {
-                $this->access_token = $result['access_token'];
-
-                $this->handleStoreTypeAction('write');
+        try {
+            if ($this->handleStoreTypeAction('validate')) {
+                return DropboxVerifyTokenResult::success();
             }
 
-            unset($result['access_token']);
-        }
+            $clientResult = DropboxApiClient::create();
 
-        return $result;
+            if (!$clientResult->isSuccess()) {
+                return DropboxVerifyTokenResult::failure($clientResult->getError());
+            }
+
+            $client = $clientResult->getClient();
+
+            $tokenResult = $client->fetchDropboxToken($dropboxRefreshToken, $dropboxAppKey, $dropboxAppSecret);
+
+            if (!$tokenResult->isSuccess()) {
+                return DropboxVerifyTokenResult::failure($tokenResult->getError());
+            }
+
+            $this->access_token = $tokenResult->getAccessToken();
+
+            $this->handleStoreTypeAction('write');
+
+            return DropboxVerifyTokenResult::success();
+        } catch (Throwable $e) {
+            ['type' => $type, 'message' => $message] = ExceptionAnalyzer::analyze($e);
+
+            return DropboxVerifyTokenResult::failure([
+                'type' => $type,
+                'message' => $message,
+                'time' => time()
+            ]);
+        }
     }
 
     private function handleStoreTypeAction(string $type): bool
