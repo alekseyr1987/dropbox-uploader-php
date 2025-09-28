@@ -9,7 +9,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 use Throwable;
 
-class DropboxApiClient
+final class DropboxApiClient
 {
     private Client $client;
 
