@@ -56,7 +56,7 @@ final class DropboxApiClient
 
                 break;
             } catch (Throwable $e) {
-                ['type' => $type, 'message' => $message, 'repeat' => $repeat] = $this->analyzeException($e);
+                ['type' => $type, 'message' => $message, 'repeat' => $repeat] = self::analyzeException($e);
 
                 $result['error'] = [
                     'action' => 'Fetching Dropbox oauth2/token',
@@ -111,7 +111,7 @@ final class DropboxApiClient
         return $current;
     }
 
-    private function analyzeException(Throwable $e): array
+    private static function analyzeException(Throwable $e): array
     {
         $status = -1;
 
