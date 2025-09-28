@@ -35,19 +35,11 @@ final class DropboxApiClient
         }
     }
 
-    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): array
+    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxFetchTokenResult
     {
-        $result = [
-            'success' => false,
-            'access_token' => null,
-            'error' => []
-        ];
-
-        $repeat = true;
-
         $attempt = 0;
 
-        while ($repeat && $attempt < 5) {
+        while ($attempt < 5) {
             $attempt++;
 
             try {
@@ -68,24 +60,29 @@ final class DropboxApiClient
                     throw new RuntimeException('Required fields are missing in the Dropbox API response.');
                 }
 
-                $result['success'] = true;
-                $result['access_token'] = $fields['access_token'];
-
-                break;
+                return DropboxFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
                 ['type' => $type, 'message' => $message, 'repeat' => $repeat] = self::analyzeException($e);
 
-                $result['error'] = [
-                    'action' => 'Fetching Dropbox oauth2/token',
-                    'attempt' => $attempt,
-                    'type' => $type,
-                    'message' => $message,
-                    'time' => time()
-                ];
+                if (!$repeat) {
+                    return DropboxFetchTokenResult::failure([
+                        'action' => 'Fetching Dropbox oauth2/token',
+                        'attempt' => $attempt,
+                        'type' => $type,
+                        'message' => $message,
+                        'time' => time()
+                    ]);
+                }
             }
         }
 
-        return $result;
+        return DropboxFetchTokenResult::failure([
+            'action' => 'Fetching Dropbox oauth2/token',
+            'attempt' => $attempt,
+            'type' => 'MaxAttemptsExceeded',
+            'message' => 'Exceeded maximum retry attempts.',
+            'time' => time()
+        ]);
     }
 
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
