@@ -28,7 +28,7 @@ final class DropboxTokenVerifier
         try {
             return DropboxTokenVerifierCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::analyze($e);
+            $errorInfo = ExceptionAnalyzer::info($e);
 
             return DropboxTokenVerifierCreateResult::failure([
                 'type' => $errorInfo->type,
@@ -124,7 +124,7 @@ final class DropboxTokenVerifier
 
             return DropboxTokenVerifierVerifyResult::success();
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::analyze($e);
+            $errorInfo = ExceptionAnalyzer::info($e);
 
             return DropboxTokenVerifierVerifyResult::failure([
                 'type' => $errorInfo->type,

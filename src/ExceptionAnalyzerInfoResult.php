@@ -2,7 +2,7 @@
 
 namespace Dbox\UploaderApi;
 
-final class ExceptionAnalyzeResult
+final class ExceptionAnalyzerInfoResult
 {
     public string $type;
     public string $message;

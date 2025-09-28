@@ -21,7 +21,7 @@ final class DropboxApiClient
         try {
             return DropboxApiClientCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::analyze($e);
+            $errorInfo = ExceptionAnalyzer::info($e);
 
             return DropboxApiClientCreateResult::failure([
                 'type' => $errorInfo->type,
@@ -58,7 +58,7 @@ final class DropboxApiClient
 
                 return DropboxApiClientFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
-                $errorInfo = ExceptionAnalyzer::analyze($e);
+                $errorInfo = ExceptionAnalyzer::info($e);
 
                 if (!$errorInfo->repeat) {
                     return DropboxApiClientFetchTokenResult::failure([
