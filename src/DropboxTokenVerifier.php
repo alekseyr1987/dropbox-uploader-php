@@ -109,11 +109,11 @@ final class DropboxTokenVerifier
 
             return DropboxVerifyTokenResult::success();
         } catch (Throwable $e) {
-            ['type' => $type, 'message' => $message] = ExceptionAnalyzer::analyze($e);
+            $errorInfo = ExceptionAnalyzer::analyze($e);
 
             return DropboxVerifyTokenResult::failure([
-                'type' => $type,
-                'message' => $message,
+                'type' => $errorInfo->type,
+                'message' => $errorInfo->message,
                 'time' => time()
             ]);
         }

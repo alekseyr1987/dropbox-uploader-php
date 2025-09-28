@@ -10,7 +10,7 @@ final class ExceptionAnalyzer
 {
     private function __construct() {}
 
-    public static function analyze(Throwable $e): array
+    public static function analyze(Throwable $e): ExceptionAnalyzeResult
     {
         $status = -1;
 
@@ -34,10 +34,6 @@ final class ExceptionAnalyzer
             sleep(10);
         }
 
-        return [
-            'type' => $type,
-            'message' => $message,
-            'repeat' => $repeat
-        ];
+        return new ExceptionAnalyzeResult($type, $message, $repeat);
     }
 }
