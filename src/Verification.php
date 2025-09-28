@@ -29,7 +29,9 @@ final class Verification
         $rules = [
             'local' => [
                 'path' => 'string'
-            ],
+            ]
+            // TODO: Uncomment the necessary types as they are implemented.
+            /*,
             'redis' => [
                 'host' => 'string',
                 'port' => 'int',
@@ -42,7 +44,7 @@ final class Verification
                 'password' => 'string',
                 'database' => 'string',
                 'port' => 'int'
-            ]
+            ]*/
         ];
 
         if (!array_key_exists($storeType, $rules)) {
