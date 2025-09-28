@@ -123,7 +123,7 @@ final class DropboxApiClient
 
                 $status = $response->getStatusCode();
 
-                $message = 'HTTP ' . $status . ' - ' . trim((string) $response->getBody());
+                $message = sprintf('HTTP %d - %s', $status, trim((string) $response->getBody()));
             } else {
                 $message = 'No response - ' . $e->getMessage();
             }
