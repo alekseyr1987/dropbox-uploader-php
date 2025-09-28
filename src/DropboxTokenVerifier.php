@@ -12,7 +12,7 @@ final class DropboxTokenVerifier
     private array $config;
     private string $access_token;
 
-    public function __construct(array $config)
+    private function __construct(array $config)
     {
         $config['store_type'] = $config['store_type'] ?? 'local';
 
@@ -21,6 +21,21 @@ final class DropboxTokenVerifier
         $this->validateConfig();
 
         $this->handleStoreTypeAction('remove');
+    }
+
+    public static function create(array $config): DropboxTokenVerifierCreateResult
+    {
+        try {
+            return DropboxTokenVerifierCreateResult::success(new self($config));
+        } catch (Throwable $e) {
+            $errorInfo = ExceptionAnalyzer::analyze($e);
+
+            return DropboxTokenVerifierCreateResult::failure([
+                'type' => $errorInfo->type,
+                'message' => $errorInfo->message,
+                'time' => time()
+            ]);
+        }
     }
 
     private function validateConfig(): void
