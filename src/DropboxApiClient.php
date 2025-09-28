@@ -11,17 +11,15 @@ final class DropboxApiClient
 {
     private Client $client;
 
-    private function __construct(Client $client)
+    private function __construct(array $config)
     {
-        $this->client = $client;
+        $this->client = new Client($config);
     }
 
     public static function create(array $config = []): DropboxApiClientCreateResult
     {
         try {
-            $client = new Client($config);
-
-            return DropboxApiClientCreateResult::success(new self($client));
+            return DropboxApiClientCreateResult::success(new self($config));
         } catch (Throwable $e) {
             $errorInfo = ExceptionAnalyzer::analyze($e);
 
