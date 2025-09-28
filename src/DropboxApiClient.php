@@ -4,8 +4,6 @@ namespace Dbox\UploaderApi;
 
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 use Throwable;
 
@@ -25,7 +23,7 @@ final class DropboxApiClient
 
             return DropboxCreateClientResult::success(new self($client));
         } catch (Throwable $e) {
-            ['type' => $type, 'message' => $message] = self::analyzeException($e);
+            ['type' => $type, 'message' => $message] = ExceptionAnalyzer::analyze($e);
 
             return DropboxCreateClientResult::failure([
                 'type' => $type,
@@ -62,7 +60,7 @@ final class DropboxApiClient
 
                 return DropboxFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
-                ['type' => $type, 'message' => $message, 'repeat' => $repeat] = self::analyzeException($e);
+                ['type' => $type, 'message' => $message, 'repeat' => $repeat] = ExceptionAnalyzer::analyze($e);
 
                 if (!$repeat) {
                     return DropboxFetchTokenResult::failure([
@@ -123,48 +121,5 @@ final class DropboxApiClient
         }
 
         return $current;
-    }
-
-    private static function analyzeException(Throwable $e): array
-    {
-        $status = -1;
-
-        if ($e instanceof RequestException) {
-            $type = 'RequestException';
-
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-
-                $status = $response->getStatusCode();
-
-                $message = sprintf('HTTP %d - %s', $status, trim((string) $response->getBody()));
-            } else {
-                $message = 'No response - ' . $e->getMessage();
-            }
-        } else {
-            if ($e instanceof GuzzleException) {
-                $type = 'GuzzleException';
-            } elseif ($e instanceof RuntimeException) {
-                $type = 'RuntimeException';
-            } else {
-                $type = 'Exception';
-            }
-
-            $message = $e->getMessage();
-        }
-
-        $repeat = false;
-
-        if ($status === 429) {
-            $repeat = true;
-
-            sleep(10);
-        }
-
-        return [
-            'type' => $type,
-            'message' => $message,
-            'repeat' => $repeat
-        ];
     }
 }
