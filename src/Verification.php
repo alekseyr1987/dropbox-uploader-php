@@ -6,7 +6,7 @@ use RuntimeException;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
-class Verification
+final class Verification
 {
     private array $config;
     private string $access_token;
