@@ -100,7 +100,7 @@ final class DboxTokenVerifier
         }
     }
 
-    public function verify(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DboxTokenVerifierVerifyResult
+    public function verify(string $refreshToken, string $appKey, string $appSecret): DboxTokenVerifierVerifyResult
     {
         try {
             if ($this->handleStoreTypeAction('validate')) {
@@ -115,7 +115,7 @@ final class DboxTokenVerifier
 
             $client = $clientResult->getClient();
 
-            $tokenResult = $client->fetchDropboxToken($dropboxRefreshToken, $dropboxAppKey, $dropboxAppSecret);
+            $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
 
             if (!$tokenResult->isSuccess()) {
                 return DboxTokenVerifierVerifyResult::failure($tokenResult->getError());

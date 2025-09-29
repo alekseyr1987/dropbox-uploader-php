@@ -33,7 +33,7 @@ final class DboxApiClient
         }
     }
 
-    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DboxApiClientFetchTokenResult
+    public function fetchDropboxToken(string $refreshToken, string $appKey, string $appSecret): DboxApiClientFetchTokenResult
     {
         $attempt = 0;
 
@@ -44,9 +44,9 @@ final class DboxApiClient
                 $httpResponse = $this->client->post('https://api.dropbox.com/oauth2/token', [
                     'form_params' => [
                         'grant_type' => 'refresh_token',
-                        'refresh_token' => $dropboxRefreshToken,
-                        'client_id' => $dropboxAppKey,
-                        'client_secret' => $dropboxAppSecret
+                        'refresh_token' => $refreshToken,
+                        'client_id' => $appKey,
+                        'client_secret' => $appSecret
                     ]
                 ]);
 
