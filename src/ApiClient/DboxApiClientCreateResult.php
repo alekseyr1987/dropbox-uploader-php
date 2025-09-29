@@ -2,22 +2,22 @@
 
 namespace Dbox\UploaderApi\ApiClient;
 
-final class DropboxApiClientFetchTokenResult
+final class DboxApiClientCreateResult
 {
     private bool $success;
-    private ?string $accessToken;
+    private ?DboxApiClient $client;
     private array $error;
 
-    private function __construct(bool $success, ?string $accessToken, array $error)
+    private function __construct(bool $success, ?DboxApiClient $client, array $error)
     {
         $this->success = $success;
-        $this->accessToken = $accessToken;
+        $this->client = $client;
         $this->error = $error;
     }
 
-    public static function success(string $accessToken): self
+    public static function success(DboxApiClient $client): self
     {
-        return new self(true, $accessToken, []);
+        return new self(true, $client, []);
     }
 
     public static function failure(array $error): self
@@ -30,9 +30,9 @@ final class DropboxApiClientFetchTokenResult
         return $this->success;
     }
 
-    public function getAccessToken(): ?string
+    public function getClient(): ?DboxApiClient
     {
-        return $this->accessToken;
+        return $this->client;
     }
 
     public function getError(): array

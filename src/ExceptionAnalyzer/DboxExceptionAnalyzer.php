@@ -1,16 +1,16 @@
 <?php
 
-namespace Dbox\UploaderApi\Exception;
+namespace Dbox\UploaderApi\ExceptionAnalyzer;
 
 use GuzzleHttp\Exception\RequestException;
 use ReflectionClass;
 use Throwable;
 
-final class ExceptionAnalyzer
+final class DboxExceptionAnalyzer
 {
     private function __construct() {}
 
-    public static function info(Throwable $e): ExceptionAnalyzerInfoResult
+    public static function info(Throwable $e): DboxExceptionAnalyzerInfoResult
     {
         $status = -1;
 
@@ -34,6 +34,6 @@ final class ExceptionAnalyzer
             sleep(10);
         }
 
-        return new ExceptionAnalyzerInfoResult($type, $message, $repeat);
+        return new DboxExceptionAnalyzerInfoResult($type, $message, $repeat);
     }
 }

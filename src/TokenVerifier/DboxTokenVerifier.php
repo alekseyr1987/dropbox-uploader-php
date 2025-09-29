@@ -2,15 +2,15 @@
 
 namespace Dbox\UploaderApi\TokenVerifier;
 
-use Dbox\UploaderApi\ApiClient\DropboxApiClient;
-use Dbox\UploaderApi\Exception\ExceptionAnalyzer;
+use Dbox\UploaderApi\ApiClient\DboxApiClient;
+use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
 
 use RuntimeException;
 use InvalidArgumentException;
 use UnexpectedValueException;
 use Throwable;
 
-final class DropboxTokenVerifier
+final class DboxTokenVerifier
 {
     private array $config;
     private string $access_token;
@@ -26,14 +26,14 @@ final class DropboxTokenVerifier
         $this->handleStoreTypeAction('remove');
     }
 
-    public static function create(array $config): DropboxTokenVerifierCreateResult
+    public static function create(array $config): DboxTokenVerifierCreateResult
     {
         try {
-            return DropboxTokenVerifierCreateResult::success(new self($config));
+            return DboxTokenVerifierCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::info($e);
+            $errorInfo = DboxExceptionAnalyzer::info($e);
 
-            return DropboxTokenVerifierCreateResult::failure([
+            return DboxTokenVerifierCreateResult::failure([
                 'type' => $errorInfo->type,
                 'message' => $errorInfo->message,
                 'time' => time()
@@ -100,17 +100,17 @@ final class DropboxTokenVerifier
         }
     }
 
-    public function verify(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxTokenVerifierVerifyResult
+    public function verify(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DboxTokenVerifierVerifyResult
     {
         try {
             if ($this->handleStoreTypeAction('validate')) {
-                return DropboxTokenVerifierVerifyResult::success();
+                return DboxTokenVerifierVerifyResult::success();
             }
 
-            $clientResult = DropboxApiClient::create();
+            $clientResult = DboxApiClient::create();
 
             if (!$clientResult->isSuccess()) {
-                return DropboxTokenVerifierVerifyResult::failure($clientResult->getError());
+                return DboxTokenVerifierVerifyResult::failure($clientResult->getError());
             }
 
             $client = $clientResult->getClient();
@@ -118,18 +118,18 @@ final class DropboxTokenVerifier
             $tokenResult = $client->fetchDropboxToken($dropboxRefreshToken, $dropboxAppKey, $dropboxAppSecret);
 
             if (!$tokenResult->isSuccess()) {
-                return DropboxTokenVerifierVerifyResult::failure($tokenResult->getError());
+                return DboxTokenVerifierVerifyResult::failure($tokenResult->getError());
             }
 
             $this->access_token = $tokenResult->getAccessToken();
 
             $this->handleStoreTypeAction('write');
 
-            return DropboxTokenVerifierVerifyResult::success();
+            return DboxTokenVerifierVerifyResult::success();
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::info($e);
+            $errorInfo = DboxExceptionAnalyzer::info($e);
 
-            return DropboxTokenVerifierVerifyResult::failure([
+            return DboxTokenVerifierVerifyResult::failure([
                 'type' => $errorInfo->type,
                 'message' => $errorInfo->message,
                 'time' => time()

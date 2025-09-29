@@ -1,8 +1,8 @@
 <?php
 
-namespace Dbox\UploaderApi\Exception;
+namespace Dbox\UploaderApi\ExceptionAnalyzer;
 
-final class ExceptionAnalyzerInfoResult
+final class DboxExceptionAnalyzerInfoResult
 {
     public string $type;
     public string $message;

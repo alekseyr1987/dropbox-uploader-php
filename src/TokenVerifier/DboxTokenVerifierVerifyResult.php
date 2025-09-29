@@ -2,7 +2,7 @@
 
 namespace Dbox\UploaderApi\TokenVerifier;
 
-final class DropboxTokenVerifierVerifyResult
+final class DboxTokenVerifierVerifyResult
 {
     private bool $success;
     private array $error;

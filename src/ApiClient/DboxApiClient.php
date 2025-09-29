@@ -2,14 +2,14 @@
 
 namespace Dbox\UploaderApi\ApiClient;
 
-use Dbox\UploaderApi\Exception\ExceptionAnalyzer;
+use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
 
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;
 use RuntimeException;
 use Throwable;
 
-final class DropboxApiClient
+final class DboxApiClient
 {
     private Client $client;
 
@@ -18,14 +18,14 @@ final class DropboxApiClient
         $this->client = new Client($config);
     }
 
-    public static function create(array $config = []): DropboxApiClientCreateResult
+    public static function create(array $config = []): DboxApiClientCreateResult
     {
         try {
-            return DropboxApiClientCreateResult::success(new self($config));
+            return DboxApiClientCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = ExceptionAnalyzer::info($e);
+            $errorInfo = DboxExceptionAnalyzer::info($e);
 
-            return DropboxApiClientCreateResult::failure([
+            return DboxApiClientCreateResult::failure([
                 'type' => $errorInfo->type,
                 'message' => $errorInfo->message,
                 'time' => time()
@@ -33,7 +33,7 @@ final class DropboxApiClient
         }
     }
 
-    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DropboxApiClientFetchTokenResult
+    public function fetchDropboxToken(string $dropboxRefreshToken, string $dropboxAppKey, string $dropboxAppSecret): DboxApiClientFetchTokenResult
     {
         $attempt = 0;
 
@@ -58,12 +58,12 @@ final class DropboxApiClient
                     throw new RuntimeException('Required fields are missing in the Dropbox API response.');
                 }
 
-                return DropboxApiClientFetchTokenResult::success($fields['access_token']);
+                return DboxApiClientFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
-                $errorInfo = ExceptionAnalyzer::info($e);
+                $errorInfo = DboxExceptionAnalyzer::info($e);
 
                 if (!$errorInfo->repeat) {
-                    return DropboxApiClientFetchTokenResult::failure([
+                    return DboxApiClientFetchTokenResult::failure([
                         'action' => 'Fetching Dropbox oauth2/token',
                         'attempt' => $attempt,
                         'type' => $errorInfo->type,
@@ -74,7 +74,7 @@ final class DropboxApiClient
             }
         }
 
-        return DropboxApiClientFetchTokenResult::failure([
+        return DboxApiClientFetchTokenResult::failure([
             'action' => 'Fetching Dropbox oauth2/token',
             'attempt' => $attempt,
             'type' => 'MaxAttemptsExceeded',

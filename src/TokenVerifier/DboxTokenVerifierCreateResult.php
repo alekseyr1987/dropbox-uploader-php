@@ -2,20 +2,20 @@
 
 namespace Dbox\UploaderApi\TokenVerifier;
 
-final class DropboxTokenVerifierCreateResult
+final class DboxTokenVerifierCreateResult
 {
     private bool $success;
-    private ?DropboxTokenVerifier $verifier;
+    private ?DboxTokenVerifier $verifier;
     private array $error;
 
-    private function __construct(bool $success, ?DropboxTokenVerifier $verifier, array $error)
+    private function __construct(bool $success, ?DboxTokenVerifier $verifier, array $error)
     {
         $this->success = $success;
         $this->verifier = $verifier;
         $this->error = $error;
     }
 
-    public static function success(DropboxTokenVerifier $verifier): self
+    public static function success(DboxTokenVerifier $verifier): self
     {
         return new self(true, $verifier, []);
     }
@@ -30,7 +30,7 @@ final class DropboxTokenVerifierCreateResult
         return $this->success;
     }
 
-    public function getVerifier(): ?DropboxTokenVerifier
+    public function getVerifier(): ?DboxTokenVerifier
     {
         return $this->verifier;
     }
