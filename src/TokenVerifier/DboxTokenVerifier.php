@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dbox\UploaderApi\TokenVerifier;
 
 use Dbox\UploaderApi\ApiClient\DboxApiClient;
