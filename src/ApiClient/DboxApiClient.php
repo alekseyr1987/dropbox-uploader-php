@@ -56,8 +56,8 @@ final class DboxApiClient
                     'access_token' => null
                 ]);
 
-                if (is_null($fields['access_token'])) {
-                    throw new RuntimeException('Required fields are missing in the Dropbox API response.');
+                if (!is_string($fields['access_token']) || $fields['access_token'] === '') {
+                    throw new RuntimeException('Required fields are missing or invalid in the Dropbox API response.');
                 }
 
                 return DboxApiClientFetchTokenResult::success($fields['access_token']);
