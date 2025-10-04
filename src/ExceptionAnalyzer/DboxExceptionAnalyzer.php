@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dbox\UploaderApi\ExceptionAnalyzer;
 
+use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use ReflectionClass;
 use Throwable;
@@ -48,6 +49,7 @@ final class DboxExceptionAnalyzer
 
         if ($e instanceof RequestException) {
             if ($e->hasResponse()) {
+                /** @var ResponseInterface $response */
                 $response = $e->getResponse();
 
                 $status = $response->getStatusCode();
