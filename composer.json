@@ -23,10 +23,16 @@
     "guzzlehttp/guzzle": "^7.10",
     "ext-json": "*"
   },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1"
+  },
   "autoload": {
     "psr-4": {
-      "Dbox\\UploaderApi\\": "src/"
+      "Dbox\\UploaderApi\\": "src"
     }
+  },
+  "scripts": {
+    "analyse": "phpstan analyse"
   },
   "minimum-stability": "stable"
 }
