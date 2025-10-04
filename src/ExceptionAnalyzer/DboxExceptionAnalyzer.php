@@ -46,16 +46,18 @@ final class DboxExceptionAnalyzer
 
         $type = (new ReflectionClass($e))->getShortName();
 
-        $message = $e->getMessage();
+        if ($e instanceof RequestException) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
 
-        if ($e instanceof RequestException && $e->hasResponse()) {
-            $response = $e->getResponse();
+                $status = $response->getStatusCode();
 
-            $status = $response->getStatusCode();
-
-            $message = sprintf('HTTP %d - %s', $status, trim((string) $response->getBody()));
-        } elseif ($e instanceof RequestException) {
-            $message = 'No response - ' . $message;
+                $message = sprintf('HTTP %d - %s', $status, trim((string) $response->getBody()));
+            } else {
+                $message = 'No response - ' . $e->getMessage();
+            }
+        } else {
+            $message = $e->getMessage();
         }
 
         $repeat = $status === 429;
