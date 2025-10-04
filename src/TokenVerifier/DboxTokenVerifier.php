@@ -188,7 +188,10 @@ final class DboxTokenVerifier
                 return DboxTokenVerifierVerifyResult::failure($tokenResult->getError());
             }
 
-            $this->access_token = $tokenResult->getAccessToken();
+            /** @var string $accessToken */
+            $accessToken = $tokenResult->getAccessToken();
+
+            $this->access_token = $accessToken;
 
             $this->handleStoreTypeAction('write');
 
