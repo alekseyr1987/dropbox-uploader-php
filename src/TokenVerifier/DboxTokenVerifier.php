@@ -179,6 +179,7 @@ final class DboxTokenVerifier
                 return DboxTokenVerifierVerifyResult::failure($clientResult->getError());
             }
 
+            /** @var DboxApiClient $client */
             $client = $clientResult->getClient();
 
             $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
