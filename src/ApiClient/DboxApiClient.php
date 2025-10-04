@@ -11,15 +11,57 @@ use GuzzleHttp\Client;
 use RuntimeException;
 use Throwable;
 
+/**
+ * Client for interacting with the Dropbox API.
+ *
+ * Provides methods for performing API requests and handling responses, encapsulating success and error states in result objects.
+ *
+ * Example usage:
+ * ```
+ * $clientResult = DboxApiClient::create();
+ *
+ * if ($clientResult->isSuccess()) {
+ *     $client = $clientResult->getClient();
+ *
+ *     $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
+ *
+ *     if ($tokenResult->isSuccess()) {
+ *         $accessToken = $tokenResult->getAccessToken();
+ *     } else {
+ *         $error = $tokenResult->getError();
+ *     }
+ * } else {
+ *     $error = $clientResult->getError();
+ * }
+ * ```
+ */
 final class DboxApiClient
 {
+    /**
+     * Guzzle HTTP client used for making API requests.
+     *
+     * @var Client
+     */
     private Client $client;
 
+    /**
+     * Private constructor. Use static `create()` method to instantiate.
+     *
+     * @param array<string, mixed> $config Guzzle client configuration
+     */
     private function __construct(array $config)
     {
         $this->client = new Client($config);
     }
 
+    /**
+     * Creates a new `DboxApiClient` wrapped in a result object.
+     *
+     * Handles exceptions during instantiation and returns a `DboxApiClientCreateResult`.
+     *
+     * @param array<string, mixed> $config Optional Guzzle client configuration
+     * @return DboxApiClientCreateResult
+     */
     public static function create(array $config = []): DboxApiClientCreateResult
     {
         try {
@@ -35,6 +77,16 @@ final class DboxApiClient
         }
     }
 
+    /**
+     * Fetches a Dropbox OAuth2 access token using a refresh token.
+     *
+     * Retries up to 5 times for transient errors.
+     *
+     * @param string $refreshToken Dropbox refresh token
+     * @param string $appKey Dropbox app key
+     * @param string $appSecret Dropbox app secret
+     * @return DboxApiClientFetchTokenResult The result of the token fetch operation
+     */
     public function fetchDropboxToken(string $refreshToken, string $appKey, string $appSecret): DboxApiClientFetchTokenResult
     {
         $attempt = 0;
@@ -85,6 +137,15 @@ final class DboxApiClient
         ]);
     }
 
+    /**
+     * Extracts specific fields from a JSON HTTP response.
+     *
+     * If the response code is not 200 or the response body is invalid JSON, default values are returned for each requested path.
+     *
+     * @param ResponseInterface $response HTTP response object
+     * @param array<string, mixed> $pathsWithDefaults Keys are field paths, values are default values
+     * @return array<string, mixed> Extracted fields with defaults applied
+     */
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
     {
         $result = [];
@@ -106,6 +167,14 @@ final class DboxApiClient
         return $result;
     }
 
+    /**
+     * Retrieves a value from a nested array using a colon-delimited path.
+     *
+     * @param array<string, mixed> $data The array to search
+     * @param string $path Colon-delimited path (e.g., "parent:child:0")
+     * @param mixed $default Value to return if the path does not exist
+     * @return mixed The value at the path, or default if missing
+     */
     private function getValueByPath(array $data, string $path, $default)
     {
         $segments = explode(':', $path);

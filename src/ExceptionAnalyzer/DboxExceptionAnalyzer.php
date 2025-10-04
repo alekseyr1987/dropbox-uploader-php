@@ -8,10 +8,38 @@ use GuzzleHttp\Exception\RequestException;
 use ReflectionClass;
 use Throwable;
 
+/**
+ * Analyzes exceptions thrown during Dropbox API operations.
+ *
+ * Provides structured information about the exception type, message, and whether the operation should be retried.
+ *
+ * Example usage:
+ * ```
+ * $errorInfo = DboxExceptionAnalyzer::info($exception);
+ *
+ * echo $errorInfo->type;     // Exception class name
+ * echo $errorInfo->message;  // Formatted exception message
+ *
+ * if ($errorInfo->repeat) {
+ *     // Retry the operation
+ * }
+ * ```
+ */
 final class DboxExceptionAnalyzer
 {
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private function __construct() {}
 
+    /**
+     * Returns structured information about an exception.
+     *
+     * Detects HTTP request exceptions and formats the message accordingly. Determines whether the operation should be repeated (e.g., HTTP 429 Too Many Requests).
+     *
+     * @param Throwable $e The exception to analyze
+     * @return DboxExceptionAnalyzerInfoResult Structured exception information
+     */
     public static function info(Throwable $e): DboxExceptionAnalyzerInfoResult
     {
         $status = -1;
