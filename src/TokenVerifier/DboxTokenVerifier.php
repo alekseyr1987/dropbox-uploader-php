@@ -262,40 +262,42 @@ final class DboxTokenVerifier
      */
     private function removeLocalDirectoriesWithFiles(string $baseDir, bool $recursion = false): void
     {
-        if (!$recursion) {
-            $currentTime = time();
+        $items = scandir($baseDir);
+
+        if ($items === false) {
+            throw new RuntimeException("Unable to scan directory: '$baseDir'.");
         }
 
-        foreach (scandir($baseDir) as $item) {
+        foreach ($items as $item) {
             if ($item === '.' || $item === '..') {
                 continue;
             }
 
-            $newPath = $baseDir . DIRECTORY_SEPARATOR . $item;
+            $itemPath = $baseDir . DIRECTORY_SEPARATOR . $item;
 
-            if (is_dir($newPath)) {
+            if (is_dir($itemPath)) {
                 if ($recursion) {
-                    $this->removeLocalDirectoriesWithFiles($newPath, $recursion);
+                    $this->removeLocalDirectoriesWithFiles($itemPath, $recursion);
                 } else {
-                    $modificationTime = filemtime($newPath);
+                    $modificationTime = filemtime($itemPath);
 
                     if ($modificationTime === false) {
                         continue;
                     }
 
-                    if ($currentTime - $modificationTime >= 3600) {
-                        $this->removeLocalDirectoriesWithFiles($newPath, true);
+                    if (time() - $modificationTime >= 3600) {
+                        $this->removeLocalDirectoriesWithFiles($itemPath, true);
                     }
                 }
             } else {
-                if ($recursion) {
-                    unlink($newPath);
+                if ($recursion && !unlink($itemPath)) {
+                    throw new RuntimeException("Unable to delete file: '$itemPath'.");
                 }
             }
         }
 
-        if ($recursion) {
-            rmdir($baseDir);
+        if ($recursion && !rmdir($baseDir)) {
+            throw new RuntimeException("Unable to remove directory: '$baseDir'.");
         }
     }
 
