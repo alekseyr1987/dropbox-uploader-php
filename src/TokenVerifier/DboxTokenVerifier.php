@@ -133,27 +133,25 @@ final class DboxTokenVerifier
                 throw new InvalidArgumentException("Missing configuration parameter '$param' for store_type '$storeType'.");
             }
 
-            $matchType = false;
-
             $paramValue = $this->config[$param];
 
             switch ($type) {
                 case 'string':
-                    $matchType = is_string($paramValue);
+                    if (!is_string($paramValue)) {
+                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'string'.");
+                    }
+
+                    if ($paramValue === '') {
+                        throw new InvalidArgumentException("Configuration parameter '$param' for store_type '$storeType' cannot be empty.");
+                    }
 
                     break;
                 case 'int':
-                    $matchType = is_int($paramValue);
+                    if (!is_int($paramValue)) {
+                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'int'.");
+                    }
 
                     break;
-            }
-
-            if (!$matchType) {
-                throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type '$type'.");
-            }
-
-            if ($type === 'string' && empty($paramValue)) {
-                throw new InvalidArgumentException("Configuration parameter '$param' for store_type '$storeType' cannot be empty.");
             }
         }
     }
