@@ -148,8 +148,6 @@ final class DboxApiClient
      */
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
     {
-        $result = [];
-
         if ($response->getStatusCode() !== 200) {
             return $pathsWithDefaults;
         }
@@ -160,7 +158,10 @@ final class DboxApiClient
             return $pathsWithDefaults;
         }
 
+        $result = [];
+
         foreach ($pathsWithDefaults as $path => $default) {
+            /** @var array<string, mixed> $data */
             $result[$path] = $this->getValueByPath($data, $path, $default);
         }
 

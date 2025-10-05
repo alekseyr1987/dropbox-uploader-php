@@ -133,27 +133,25 @@ final class DboxTokenVerifier
                 throw new InvalidArgumentException("Missing configuration parameter '$param' for store_type '$storeType'.");
             }
 
-            $matchType = false;
-
             $paramValue = $this->config[$param];
 
             switch ($type) {
                 case 'string':
-                    $matchType = is_string($paramValue);
+                    if (!is_string($paramValue)) {
+                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'string'.");
+                    }
+
+                    if ($paramValue === '') {
+                        throw new InvalidArgumentException("Configuration parameter '$param' for store_type '$storeType' cannot be empty.");
+                    }
 
                     break;
                 case 'int':
-                    $matchType = is_int($paramValue);
+                    if (!is_int($paramValue)) {
+                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'int'.");
+                    }
 
                     break;
-            }
-
-            if (!$matchType) {
-                throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type '$type'.");
-            }
-
-            if ($type === 'string' && empty($paramValue)) {
-                throw new InvalidArgumentException("Configuration parameter '$param' for store_type '$storeType' cannot be empty.");
             }
         }
     }
@@ -181,6 +179,7 @@ final class DboxTokenVerifier
                 return DboxTokenVerifierVerifyResult::failure($clientResult->getError());
             }
 
+            /** @var DboxApiClient $client */
             $client = $clientResult->getClient();
 
             $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
@@ -189,7 +188,10 @@ final class DboxTokenVerifier
                 return DboxTokenVerifierVerifyResult::failure($tokenResult->getError());
             }
 
-            $this->access_token = $tokenResult->getAccessToken();
+            /** @var string $accessToken */
+            $accessToken = $tokenResult->getAccessToken();
+
+            $this->access_token = $accessToken;
 
             $this->handleStoreTypeAction('write');
 
@@ -217,7 +219,7 @@ final class DboxTokenVerifier
 
         switch ($this->config['store_type']) {
             case 'local':
-                $baseDir = DIRECTORY_SEPARATOR . trim($this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'dbox_uploader';
+                $baseDir = DIRECTORY_SEPARATOR . trim((string) $this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'dbox_uploader';
                 $filePath = $baseDir . DIRECTORY_SEPARATOR . 'token.json';
 
                 if (!is_dir($baseDir) && !mkdir($baseDir, 0755, true)) {
@@ -316,13 +318,25 @@ final class DboxTokenVerifier
         $fileContent = file_get_contents($filePath);
 
         if ($fileContent === false) {
-            throw new RuntimeException("Unable to read data from file: '$filePath'.");
+            throw new RuntimeException("Failed to read token file: '$filePath'.");
         }
 
         $data = json_decode($fileContent, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new UnexpectedValueException("Unable to decode JSON data from file: '$filePath'.");
+            throw new UnexpectedValueException("Invalid JSON format in token file: '$filePath'.");
+        }
+
+        if (!is_array($data)) {
+            throw new UnexpectedValueException("Decoded token file is not an array: '$filePath'.");
+        }
+
+        if (!array_key_exists('expires_in', $data)) {
+            throw new UnexpectedValueException("Missing 'expires_in' field in token file: '$filePath'.");
+        }
+
+        if (!is_int($data['expires_in'])) {
+            throw new UnexpectedValueException("Invalid 'expires_in' type, expected int in token file: '$filePath'.");
         }
 
         if (time() >= $data['expires_in']) {
