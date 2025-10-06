@@ -180,19 +180,15 @@ final class DboxTokenVerifier
                 return DboxTokenVerifierVerifyResult::failure($clientResult->getError());
             }
 
-            /** @var DboxApiClient $client */
             $client = $clientResult->getClient();
 
-            $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
+            $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret); // @phpstan-ignore method.nonObject
 
             if (!$tokenResult->isSuccess()) {
                 return DboxTokenVerifierVerifyResult::failure($tokenResult->getError());
             }
 
-            /** @var string $accessToken */
-            $accessToken = $tokenResult->getAccessToken();
-
-            $this->access_token = $accessToken;
+            $this->access_token = $tokenResult->getAccessToken(); // @phpstan-ignore assign.propertyType
 
             $this->handleStoreTypeAction('write');
 

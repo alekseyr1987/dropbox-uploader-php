@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dbox\UploaderApi\Utils\ExceptionAnalyzer;
 
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use ReflectionClass;
 use Throwable;
@@ -38,14 +37,15 @@ final class DboxExceptionAnalyzer
 
         if ($e instanceof RequestException) {
             if ($e->hasResponse()) {
-                /** @var ResponseInterface $response */
                 $response = $e->getResponse();
 
-                $status = $response->getStatusCode();
+                $status = $response->getStatusCode(); // @phpstan-ignore method.nonObject
 
-                $message = sprintf('HTTP %d - %s', $status, trim((string) $response->getBody()));
+                $body = trim((string) $response->getBody()); // @phpstan-ignore method.nonObject
+
+                $message = "HTTP $status - $body";
             } else {
-                $message = 'No response - ' . $e->getMessage();
+                $message = "No response - {$e->getMessage()}";
             }
         } else {
             $message = $e->getMessage();

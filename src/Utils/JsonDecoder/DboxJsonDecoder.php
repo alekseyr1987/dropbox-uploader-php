@@ -51,7 +51,6 @@ final class DboxJsonDecoder
             throw new UnexpectedValueException("Decoded token file is not an array: '$path'.");
         }
 
-        /** @var array<string, mixed> $data */
-        return $data;
+        return $data; // @phpstan-ignore return.type
     }
 }
