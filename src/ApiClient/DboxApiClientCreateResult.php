@@ -45,9 +45,9 @@ final class DboxApiClientCreateResult
     /**
      * Private constructor. Use static `success()` or `failure()` methods.
      *
-     * @param bool $success Whether the client creation was successful
-     * @param ?DboxApiClient $client The created client if successful, null otherwise
-     * @param array<string, int|string> $error Error details if failed
+     * @param bool                      $success Whether the client creation was successful
+     * @param ?DboxApiClient            $client  The created client if successful, null otherwise
+     * @param array<string, int|string> $error   Error details if failed
      */
     private function __construct(bool $success, ?DboxApiClient $client, array $error)
     {

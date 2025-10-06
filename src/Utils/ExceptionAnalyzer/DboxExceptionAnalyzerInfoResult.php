@@ -38,9 +38,9 @@ final class DboxExceptionAnalyzerInfoResult
     /**
      * Initializes the analyzed exception information result.
      *
-     * @param string $type Short class name of the exception
+     * @param string $type    Short class name of the exception
      * @param string $message Formatted exception message
-     * @param bool $repeat Whether the operation should be retried
+     * @param bool   $repeat  Whether the operation should be retried
      */
     public function __construct(string $type, string $message, bool $repeat)
     {

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Dbox\UploaderApi\Utils\JsonDecoder;
 
-use UnexpectedValueException;
-
 /**
  * Utility class for decoding JSON strings into associative arrays, returning either decoded data or a default value depending on success.
  */
@@ -25,9 +23,9 @@ final class DboxJsonDecoder
      *
      * The optional `$path` parameter is used to indicate the file path in error messages when decoding fails.
      *
-     * @param string $content JSON string to decode
+     * @param string               $content JSON string to decode
      * @param array<string, mixed> $default Array to return if decoding fails; if empty, an exception is thrown
-     * @param ?string $path Optional file path to include in exception messages
+     * @param ?string              $path    Optional file path to include in exception messages
      *
      * @return array<string, mixed> Decoded associative array or `$default` if provided
      */
@@ -35,12 +33,12 @@ final class DboxJsonDecoder
     {
         $data = json_decode($content, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (JSON_ERROR_NONE !== json_last_error()) {
             if (!empty($default)) {
                 return $default;
             }
 
-            throw new UnexpectedValueException("Invalid JSON format in token file: '$path'.");
+            throw new \UnexpectedValueException("Invalid JSON format in token file: '{$path}'.");
         }
 
         if (!is_array($data)) {
@@ -48,7 +46,7 @@ final class DboxJsonDecoder
                 return $default;
             }
 
-            throw new UnexpectedValueException("Decoded token file is not an array: '$path'.");
+            throw new \UnexpectedValueException("Decoded token file is not an array: '{$path}'.");
         }
 
         return $data; // @phpstan-ignore return.type

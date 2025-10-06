@@ -6,11 +6,8 @@ namespace Dbox\UploaderApi\ApiClient;
 
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
-
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;
-use RuntimeException;
-use Throwable;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Client for interacting with the Dropbox API.
@@ -68,13 +65,13 @@ final class DboxApiClient
     {
         try {
             return DboxApiClientCreateResult::success(new self($config));
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $error = DboxExceptionAnalyzer::info($e);
 
             return DboxApiClientCreateResult::failure([
                 'type' => $error->type,
                 'message' => $error->message,
-                'time' => time()
+                'time' => time(),
             ]);
         }
     }
@@ -85,8 +82,8 @@ final class DboxApiClient
      * Retries up to 5 times for transient errors.
      *
      * @param string $refreshToken Dropbox refresh token
-     * @param string $appKey Dropbox app key
-     * @param string $appSecret Dropbox app secret
+     * @param string $appKey       Dropbox app key
+     * @param string $appSecret    Dropbox app secret
      *
      * @return DboxApiClientFetchTokenResult The result of the token fetch operation
      */
@@ -95,7 +92,7 @@ final class DboxApiClient
         $attempt = 0;
 
         while ($attempt < 5) {
-            $attempt++;
+            ++$attempt;
 
             try {
                 $httpResponse = $this->client->post('https://api.dropbox.com/oauth2/token', [
@@ -103,20 +100,20 @@ final class DboxApiClient
                         'grant_type' => 'refresh_token',
                         'refresh_token' => $refreshToken,
                         'client_id' => $appKey,
-                        'client_secret' => $appSecret
-                    ]
+                        'client_secret' => $appSecret,
+                    ],
                 ]);
 
                 $fields = $this->extractJsonFields($httpResponse, [
-                    'access_token' => null
+                    'access_token' => null,
                 ]);
 
-                if (!is_string($fields['access_token']) || $fields['access_token'] === '') {
-                    throw new RuntimeException('Required fields are missing or invalid in the Dropbox API response.');
+                if (!is_string($fields['access_token']) || '' === $fields['access_token']) {
+                    throw new \RuntimeException('Required fields are missing or invalid in the Dropbox API response.');
                 }
 
                 return DboxApiClientFetchTokenResult::success($fields['access_token']);
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $error = DboxExceptionAnalyzer::info($e);
 
                 if (!$error->repeat) {
@@ -125,7 +122,7 @@ final class DboxApiClient
                         'attempt' => $attempt,
                         'type' => $error->type,
                         'message' => $error->message,
-                        'time' => time()
+                        'time' => time(),
                     ]);
                 }
             }
@@ -136,7 +133,7 @@ final class DboxApiClient
             'attempt' => $attempt,
             'type' => 'MaxAttemptsExceeded',
             'message' => 'Exceeded maximum retry attempts.',
-            'time' => time()
+            'time' => time(),
         ]);
     }
 
@@ -145,14 +142,14 @@ final class DboxApiClient
      *
      * If the response code is not 200 or the response body is invalid JSON, default values are returned for each requested path.
      *
-     * @param ResponseInterface $response HTTP response object
+     * @param ResponseInterface    $response          HTTP response object
      * @param array<string, mixed> $pathsWithDefaults Keys are field paths, values are default values
      *
      * @return array<string, mixed> Extracted fields with defaults applied
      */
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
     {
-        if ($response->getStatusCode() !== 200) {
+        if (200 !== $response->getStatusCode()) {
             return $pathsWithDefaults;
         }
 
@@ -170,9 +167,9 @@ final class DboxApiClient
     /**
      * Retrieves a value from a nested array using a colon-delimited path.
      *
-     * @param array<string, mixed> $data The array to search
-     * @param string $path Colon-delimited path (e.g., "parent:child:0")
-     * @param mixed $default Value to return if the path does not exist
+     * @param array<string, mixed> $data    The array to search
+     * @param string               $path    Colon-delimited path (e.g., "parent:child:0")
+     * @param mixed                $default Value to return if the path does not exist
      *
      * @return mixed The value at the path, or default if missing
      */

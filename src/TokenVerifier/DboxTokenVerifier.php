@@ -8,11 +8,6 @@ use Dbox\UploaderApi\ApiClient\DboxApiClient;
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
 
-use RuntimeException;
-use InvalidArgumentException;
-use UnexpectedValueException;
-use Throwable;
-
 /**
  * Verifier for Dropbox API access tokens.
  *
@@ -87,74 +82,14 @@ final class DboxTokenVerifier
     {
         try {
             return DboxTokenVerifierCreateResult::success(new self($config));
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $error = DboxExceptionAnalyzer::info($e);
 
             return DboxTokenVerifierCreateResult::failure([
                 'type' => $error->type,
                 'message' => $error->message,
-                'time' => time()
+                'time' => time(),
             ]);
-        }
-    }
-
-    /**
-     * Validates the configuration array according to the selected store type.
-     */
-    private function validateConfig(): void
-    {
-        $storeType = $this->config['store_type'];
-
-        $rules = [
-            'local' => [
-                'path' => 'string'
-            ]
-            // TODO: Uncomment the necessary types as they are implemented.
-            /*,
-            'redis' => [
-                'host' => 'string',
-                'port' => 'int',
-                'credentials' => 'string',
-                'db' => 'int'
-            ],
-            'mysql' => [
-                'hostname' => 'string',
-                'username' => 'string',
-                'password' => 'string',
-                'database' => 'string',
-                'port' => 'int'
-            ]*/
-        ];
-
-        if (!array_key_exists($storeType, $rules)) {
-            throw new InvalidArgumentException("Unsupported store_type '$storeType'.");
-        }
-
-        foreach ($rules[$storeType] as $param => $type) {
-            if (!array_key_exists($param, $this->config)) {
-                throw new InvalidArgumentException("Missing configuration parameter '$param' for store_type '$storeType'.");
-            }
-
-            $paramValue = $this->config[$param];
-
-            switch ($type) {
-                case 'string':
-                    if (!is_string($paramValue)) {
-                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'string'.");
-                    }
-
-                    if ($paramValue === '') {
-                        throw new InvalidArgumentException("Configuration parameter '$param' for store_type '$storeType' cannot be empty.");
-                    }
-
-                    break;
-                case 'int':
-                    if (!is_int($paramValue)) {
-                        throw new InvalidArgumentException("Parameter '$param' for store_type '$storeType' must be of type 'int'.");
-                    }
-
-                    break;
-            }
         }
     }
 
@@ -164,8 +99,8 @@ final class DboxTokenVerifier
      * Performs validation or fetches a new token from Dropbox via `DboxApiClient` if required. Handles exceptions and returns a result object encapsulating success or failure.
      *
      * @param string $refreshToken Dropbox refresh token
-     * @param string $appKey Dropbox app key
-     * @param string $appSecret Dropbox app secret
+     * @param string $appKey       Dropbox app key
+     * @param string $appSecret    Dropbox app secret
      *
      * @return DboxTokenVerifierVerifyResult The result of token verification
      */
@@ -195,14 +130,74 @@ final class DboxTokenVerifier
             $this->handleStoreTypeAction('write');
 
             return DboxTokenVerifierVerifyResult::success();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $error = DboxExceptionAnalyzer::info($e);
 
             return DboxTokenVerifierVerifyResult::failure([
                 'type' => $error->type,
                 'message' => $error->message,
-                'time' => time()
+                'time' => time(),
             ]);
+        }
+    }
+
+    /**
+     * Validates the configuration array according to the selected store type.
+     */
+    private function validateConfig(): void
+    {
+        $storeType = $this->config['store_type'];
+
+        $rules = [
+            'local' => [
+                'path' => 'string',
+            ],
+            // TODO: Uncomment the necessary types as they are implemented.
+            /*'redis' => [
+                'host' => 'string',
+                'port' => 'int',
+                'credentials' => 'string',
+                'db' => 'int',
+            ],
+            'mysql' => [
+                'hostname' => 'string',
+                'username' => 'string',
+                'password' => 'string',
+                'database' => 'string',
+                'port' => 'int',
+            ],*/
+        ];
+
+        if (!array_key_exists($storeType, $rules)) {
+            throw new \InvalidArgumentException("Unsupported store_type '{$storeType}'.");
+        }
+
+        foreach ($rules[$storeType] as $param => $type) {
+            if (!array_key_exists($param, $this->config)) {
+                throw new \InvalidArgumentException("Missing configuration parameter '{$param}' for store_type '{$storeType}'.");
+            }
+
+            $paramValue = $this->config[$param];
+
+            switch ($type) {
+                case 'string':
+                    if (!is_string($paramValue)) {
+                        throw new \InvalidArgumentException("Parameter '{$param}' for store_type '{$storeType}' must be of type 'string'.");
+                    }
+
+                    if ('' === $paramValue) {
+                        throw new \InvalidArgumentException("Configuration parameter '{$param}' for store_type '{$storeType}' cannot be empty.");
+                    }
+
+                    break;
+
+                case 'int':
+                    if (!is_int($paramValue)) {
+                        throw new \InvalidArgumentException("Parameter '{$param}' for store_type '{$storeType}' must be of type 'int'.");
+                    }
+
+                    break;
+            }
         }
     }
 
@@ -219,32 +214,34 @@ final class DboxTokenVerifier
 
         switch ($this->config['store_type']) {
             case 'local':
-                $baseDir = DIRECTORY_SEPARATOR . trim((string) $this->config['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'dbox_uploader';
-                $filePath = $baseDir . DIRECTORY_SEPARATOR . 'token.json';
+                $baseDir = DIRECTORY_SEPARATOR.trim((string) $this->config['path'], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'dbox_uploader';
+                $filePath = $baseDir.DIRECTORY_SEPARATOR.'token.json';
 
                 if (!is_dir($baseDir) && !mkdir($baseDir, 0755, true)) {
-                    throw new RuntimeException("Unable to create directory: '$baseDir'.");
+                    throw new \RuntimeException("Unable to create directory: '{$baseDir}'.");
                 }
 
-                if ($type === 'remove') {
+                if ('remove' === $type) {
                     $this->removeLocalDirectoriesWithFiles($baseDir);
                 }
 
-                if ($type === 'validate') {
+                if ('validate' === $type) {
                     $result = $this->validateLocalToken($filePath);
                 }
 
-                if ($type === 'write') {
+                if ('write' === $type) {
                     $this->writeLocalToken($filePath);
                 }
 
                 break;
+
             case 'redis':
                 // TODO: Implement the deletion of temporary parts of files from redis that are more than 1 hour old.
                 // TODO: Implement the receipt of the token from redis and its validation for a period of validity of no more than 3 hours.
                 // TODO: Implement writing the token to a redis.
 
                 break;
+
             case 'mysql':
                 // TODO: Implement the deletion of temporary parts of files from mysql that are more than 1 hour old.
                 // TODO: Implement the receipt of the token from mysql and its validation for a period of validity of no more than 3 hours.
@@ -259,23 +256,23 @@ final class DboxTokenVerifier
     /**
      * Recursively removes directories and files for local storage.
      *
-     * @param string $baseDir Base directory to clean
-     * @param bool $recursion Whether the call is recursive
+     * @param string $baseDir   Base directory to clean
+     * @param bool   $recursion Whether the call is recursive
      */
     private function removeLocalDirectoriesWithFiles(string $baseDir, bool $recursion = false): void
     {
         $items = scandir($baseDir);
 
-        if ($items === false) {
-            throw new RuntimeException("Unable to scan directory: '$baseDir'.");
+        if (false === $items) {
+            throw new \RuntimeException("Unable to scan directory: '{$baseDir}'.");
         }
 
         foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
+            if ('.' === $item || '..' === $item) {
                 continue;
             }
 
-            $itemPath = $baseDir . DIRECTORY_SEPARATOR . $item;
+            $itemPath = $baseDir.DIRECTORY_SEPARATOR.$item;
 
             if (is_dir($itemPath)) {
                 if ($recursion) {
@@ -283,7 +280,7 @@ final class DboxTokenVerifier
                 } else {
                     $modificationTime = filemtime($itemPath);
 
-                    if ($modificationTime === false) {
+                    if (false === $modificationTime) {
                         continue;
                     }
 
@@ -293,13 +290,13 @@ final class DboxTokenVerifier
                 }
             } else {
                 if ($recursion && !unlink($itemPath)) {
-                    throw new RuntimeException("Unable to delete file: '$itemPath'.");
+                    throw new \RuntimeException("Unable to delete file: '{$itemPath}'.");
                 }
             }
         }
 
         if ($recursion && !rmdir($baseDir)) {
-            throw new RuntimeException("Unable to remove directory: '$baseDir'.");
+            throw new \RuntimeException("Unable to remove directory: '{$baseDir}'.");
         }
     }
 
@@ -318,18 +315,18 @@ final class DboxTokenVerifier
 
         $fileContent = file_get_contents($filePath);
 
-        if ($fileContent === false) {
-            throw new RuntimeException("Failed to read token file: '$filePath'.");
+        if (false === $fileContent) {
+            throw new \RuntimeException("Failed to read token file: '{$filePath}'.");
         }
 
         $data = DboxJsonDecoder::decode($fileContent, [], $filePath);
 
         if (!array_key_exists('expires_in', $data)) {
-            throw new UnexpectedValueException("Missing 'expires_in' field in token file: '$filePath'.");
+            throw new \UnexpectedValueException("Missing 'expires_in' field in token file: '{$filePath}'.");
         }
 
         if (!is_int($data['expires_in'])) {
-            throw new UnexpectedValueException("Invalid 'expires_in' type, expected int in token file: '$filePath'.");
+            throw new \UnexpectedValueException("Invalid 'expires_in' type, expected int in token file: '{$filePath}'.");
         }
 
         if (time() >= $data['expires_in']) {
@@ -348,15 +345,15 @@ final class DboxTokenVerifier
     {
         $json = json_encode([
             'access_token' => $this->access_token,
-            'expires_in' => time() + 10800
+            'expires_in' => time() + 10800,
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        if ($json === false) {
-            throw new RuntimeException("Unable to encode data to JSON: '$filePath'.");
+        if (false === $json) {
+            throw new \RuntimeException("Unable to encode data to JSON: '{$filePath}'.");
         }
 
-        if (file_put_contents($filePath, $json) === false) {
-            throw new RuntimeException("Unable to write data to file: '$filePath'.");
+        if (false === file_put_contents($filePath, $json)) {
+            throw new \RuntimeException("Unable to write data to file: '{$filePath}'.");
         }
     }
 }

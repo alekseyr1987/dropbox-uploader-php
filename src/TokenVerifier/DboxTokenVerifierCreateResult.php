@@ -45,9 +45,9 @@ final class DboxTokenVerifierCreateResult
     /**
      * Private constructor. Use static `success()` or `failure()` methods.
      *
-     * @param bool $success Whether the verifier creation was successful
-     * @param ?DboxTokenVerifier $verifier The created verifier if successful, null otherwise
-     * @param array<string, int|string> $error Error details if failed
+     * @param bool                      $success  Whether the verifier creation was successful
+     * @param ?DboxTokenVerifier        $verifier The created verifier if successful, null otherwise
+     * @param array<string, int|string> $error    Error details if failed
      */
     private function __construct(bool $success, ?DboxTokenVerifier $verifier, array $error)
     {

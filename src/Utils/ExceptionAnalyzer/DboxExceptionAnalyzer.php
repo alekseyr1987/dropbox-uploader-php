@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Dbox\UploaderApi\Utils\ExceptionAnalyzer;
 
 use GuzzleHttp\Exception\RequestException;
-use ReflectionClass;
-use Throwable;
 
 /**
  * Utility class for analyzing exceptions from Dropbox API operations.
@@ -25,15 +23,15 @@ final class DboxExceptionAnalyzer
      *
      * Detects HTTP request exceptions and formats the message accordingly. Determines whether the operation should be repeated (e.g., HTTP 429 Too Many Requests).
      *
-     * @param Throwable $e The exception to analyze
+     * @param \Throwable $e The exception to analyze
      *
      * @return DboxExceptionAnalyzerInfoResult Structured exception information
      */
-    public static function info(Throwable $e): DboxExceptionAnalyzerInfoResult
+    public static function info(\Throwable $e): DboxExceptionAnalyzerInfoResult
     {
         $status = -1;
 
-        $type = (new ReflectionClass($e))->getShortName();
+        $type = (new \ReflectionClass($e))->getShortName();
 
         if ($e instanceof RequestException) {
             if ($e->hasResponse()) {
@@ -43,7 +41,7 @@ final class DboxExceptionAnalyzer
 
                 $body = trim((string) $response->getBody()); // @phpstan-ignore method.nonObject
 
-                $message = "HTTP $status - $body";
+                $message = "HTTP {$status} - {$body}";
             } else {
                 $message = "No response - {$e->getMessage()}";
             }
@@ -51,7 +49,7 @@ final class DboxExceptionAnalyzer
             $message = $e->getMessage();
         }
 
-        $repeat = $status === 429;
+        $repeat = 429 === $status;
 
         if ($repeat) {
             sleep(10);

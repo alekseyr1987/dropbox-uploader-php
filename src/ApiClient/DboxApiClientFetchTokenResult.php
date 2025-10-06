@@ -45,9 +45,9 @@ final class DboxApiClientFetchTokenResult
     /**
      * Private constructor. Use static `success()` or `failure()` methods.
      *
-     * @param bool $success Whether the token fetch was successful
-     * @param ?string $accessToken The fetched access token if successful, null otherwise
-     * @param array<string, int|string> $error Error details if failed
+     * @param bool                      $success     Whether the token fetch was successful
+     * @param ?string                   $accessToken The fetched access token if successful, null otherwise
+     * @param array<string, int|string> $error       Error details if failed
      */
     private function __construct(bool $success, ?string $accessToken, array $error)
     {
