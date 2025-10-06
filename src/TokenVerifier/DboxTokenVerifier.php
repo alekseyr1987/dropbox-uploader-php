@@ -6,6 +6,7 @@ namespace Dbox\UploaderApi\TokenVerifier;
 
 use Dbox\UploaderApi\ApiClient\DboxApiClient;
 use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
+use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
 
 use RuntimeException;
 use InvalidArgumentException;
@@ -321,15 +322,7 @@ final class DboxTokenVerifier
             throw new RuntimeException("Failed to read token file: '$filePath'.");
         }
 
-        $data = json_decode($fileContent, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new UnexpectedValueException("Invalid JSON format in token file: '$filePath'.");
-        }
-
-        if (!is_array($data)) {
-            throw new UnexpectedValueException("Decoded token file is not an array: '$filePath'.");
-        }
+        $data = DboxJsonDecoder::decode($fileContent, [], $filePath);
 
         if (!array_key_exists('expires_in', $data)) {
             throw new UnexpectedValueException("Missing 'expires_in' field in token file: '$filePath'.");

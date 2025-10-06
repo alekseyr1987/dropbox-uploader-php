@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dbox\UploaderApi\ApiClient;
 
 use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
+use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
 
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;
@@ -152,16 +153,11 @@ final class DboxApiClient
             return $pathsWithDefaults;
         }
 
-        $data = json_decode((string) $response->getBody(), true);
-
-        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
-            return $pathsWithDefaults;
-        }
+        $data = DboxJsonDecoder::decode((string) $response->getBody(), $pathsWithDefaults);
 
         $result = [];
 
         foreach ($pathsWithDefaults as $path => $default) {
-            /** @var array<string, mixed> $data */
             $result[$path] = $this->getValueByPath($data, $path, $default);
         }
 
