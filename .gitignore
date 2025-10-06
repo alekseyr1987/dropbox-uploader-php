@@ -1,4 +1,16 @@
+# System
+.DS_Store
+
+# IDE
 .idea
+
+# Composer
 vendor
 composer.lock
+
+#PHPCSFixer
+.php-cs-fixer.php
+.php-cs-fixer.cache
+
+# PHPStan
 phpstan.neon
