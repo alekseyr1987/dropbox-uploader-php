@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dbox\UploaderApi\TokenVerifier;
 
 use Dbox\UploaderApi\ApiClient\DboxApiClient;
-use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
+use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
 
 use RuntimeException;
@@ -87,11 +87,11 @@ final class DboxTokenVerifier
         try {
             return DboxTokenVerifierCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = DboxExceptionAnalyzer::info($e);
+            $error = DboxExceptionAnalyzer::info($e);
 
             return DboxTokenVerifierCreateResult::failure([
-                'type' => $errorInfo->type,
-                'message' => $errorInfo->message,
+                'type' => $error->type,
+                'message' => $error->message,
                 'time' => time()
             ]);
         }
@@ -198,11 +198,11 @@ final class DboxTokenVerifier
 
             return DboxTokenVerifierVerifyResult::success();
         } catch (Throwable $e) {
-            $errorInfo = DboxExceptionAnalyzer::info($e);
+            $error = DboxExceptionAnalyzer::info($e);
 
             return DboxTokenVerifierVerifyResult::failure([
-                'type' => $errorInfo->type,
-                'message' => $errorInfo->message,
+                'type' => $error->type,
+                'message' => $error->message,
                 'time' => time()
             ]);
         }

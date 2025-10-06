@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dbox\UploaderApi\ExceptionAnalyzer;
+namespace Dbox\UploaderApi\Utils\ExceptionAnalyzer;
 
 /**
  * Represents analyzed exception information.

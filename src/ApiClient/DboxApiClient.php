@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dbox\UploaderApi\ApiClient;
 
-use Dbox\UploaderApi\ExceptionAnalyzer\DboxExceptionAnalyzer;
+use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
 
 use Psr\Http\Message\ResponseInterface;
@@ -68,11 +68,11 @@ final class DboxApiClient
         try {
             return DboxApiClientCreateResult::success(new self($config));
         } catch (Throwable $e) {
-            $errorInfo = DboxExceptionAnalyzer::info($e);
+            $error = DboxExceptionAnalyzer::info($e);
 
             return DboxApiClientCreateResult::failure([
-                'type' => $errorInfo->type,
-                'message' => $errorInfo->message,
+                'type' => $error->type,
+                'message' => $error->message,
                 'time' => time()
             ]);
         }
@@ -115,14 +115,14 @@ final class DboxApiClient
 
                 return DboxApiClientFetchTokenResult::success($fields['access_token']);
             } catch (Throwable $e) {
-                $errorInfo = DboxExceptionAnalyzer::info($e);
+                $error = DboxExceptionAnalyzer::info($e);
 
-                if (!$errorInfo->repeat) {
+                if (!$error->repeat) {
                     return DboxApiClientFetchTokenResult::failure([
                         'action' => 'Fetching Dropbox oauth2/token',
                         'attempt' => $attempt,
-                        'type' => $errorInfo->type,
-                        'message' => $errorInfo->message,
+                        'type' => $error->type,
+                        'message' => $error->message,
                         'time' => time()
                     ]);
                 }
