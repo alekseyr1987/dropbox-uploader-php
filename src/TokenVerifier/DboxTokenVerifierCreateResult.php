@@ -24,21 +24,21 @@ final class DboxTokenVerifierCreateResult
     /**
      * Indicates whether the verifier creation was successful.
      *
-     * @var bool
+     * @var bool True if the verifier was successfully created
      */
     private bool $success;
 
     /**
      * The created verifier if successful, otherwise null.
      *
-     * @var ?DboxTokenVerifier
+     * @var ?DboxTokenVerifier Verifier instance or null if creation failed
      */
     private ?DboxTokenVerifier $verifier;
 
     /**
      * Error details if the verifier creation failed. Empty array on success.
      *
-     * @var array<string, int|string>
+     * @var array<string, int|string> Error details describing the cause of failure
      */
     private array $error;
 
@@ -60,7 +60,8 @@ final class DboxTokenVerifierCreateResult
      * Creates a successful result with a verifier.
      *
      * @param DboxTokenVerifier $verifier The successfully created verifier
-     * @return self
+     *
+     * @return self Instance representing a successful result
      */
     public static function success(DboxTokenVerifier $verifier): self
     {
@@ -71,7 +72,8 @@ final class DboxTokenVerifierCreateResult
      * Creates a failure result with error details.
      *
      * @param array<string, int|string> $error Error information describing the failure
-     * @return self
+     *
+     * @return self Instance representing a failed result
      */
     public static function failure(array $error): self
     {
@@ -81,7 +83,7 @@ final class DboxTokenVerifierCreateResult
     /**
      * Returns true if the verifier creation was successful.
      *
-     * @return bool
+     * @return bool True if the verifier was successfully created
      */
     public function isSuccess(): bool
     {

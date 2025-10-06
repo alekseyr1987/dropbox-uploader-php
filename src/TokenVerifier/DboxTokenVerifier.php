@@ -47,14 +47,14 @@ final class DboxTokenVerifier
     /**
      * Configuration for the verifier, including store type and related parameters.
      *
-     * @var array<string, int|string>
+     * @var array<string, int|string> Verifier configuration parameters
      */
     private array $config;
 
     /**
      * Cached Dropbox access token after successful verification.
      *
-     * @var string
+     * @var string Access token string
      */
     private string $access_token;
 
@@ -80,7 +80,8 @@ final class DboxTokenVerifier
      * Handles exceptions during instantiation and returns a `DboxTokenVerifierCreateResult`.
      *
      * @param array<string, int|string> $config Verifier configuration
-     * @return DboxTokenVerifierCreateResult
+     *
+     * @return DboxTokenVerifierCreateResult Result object containing either a `DboxTokenVerifier` instance or error details
      */
     public static function create(array $config): DboxTokenVerifierCreateResult
     {
@@ -165,6 +166,7 @@ final class DboxTokenVerifier
      * @param string $refreshToken Dropbox refresh token
      * @param string $appKey Dropbox app key
      * @param string $appSecret Dropbox app secret
+     *
      * @return DboxTokenVerifierVerifyResult The result of token verification
      */
     public function verify(string $refreshToken, string $appKey, string $appSecret): DboxTokenVerifierVerifyResult
@@ -208,6 +210,7 @@ final class DboxTokenVerifier
      * Handles store-type-specific actions such as writing, validating, or removing tokens.
      *
      * @param string $type Action type: 'remove', 'validate', or 'write'
+     *
      * @return bool True if action succeeded (for validate), false otherwise
      */
     private function handleStoreTypeAction(string $type): bool
@@ -304,6 +307,7 @@ final class DboxTokenVerifier
      * Validates the local access token stored in a file.
      *
      * @param string $filePath Path to the local token file
+     *
      * @return bool True if token is valid and not expired
      */
     private function validateLocalToken(string $filePath): bool

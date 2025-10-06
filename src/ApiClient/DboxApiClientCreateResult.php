@@ -24,21 +24,21 @@ final class DboxApiClientCreateResult
     /**
      * Indicates whether the client creation was successful.
      *
-     * @var bool
+     * @var bool True if the client was successfully created
      */
     private bool $success;
 
     /**
      * The created client if successful, otherwise null.
      *
-     * @var ?DboxApiClient
+     * @var ?DboxApiClient Client instance or null if creation failed
      */
     private ?DboxApiClient $client;
 
     /**
      * Error details if the client creation failed. Empty array on success.
      *
-     * @var array<string, int|string>
+     * @var array<string, int|string> Error details describing the cause of failure
      */
     private array $error;
 
@@ -60,7 +60,8 @@ final class DboxApiClientCreateResult
      * Creates a successful result with a client.
      *
      * @param DboxApiClient $client The successfully created client
-     * @return self
+     *
+     * @return self Instance representing a successful result
      */
     public static function success(DboxApiClient $client): self
     {
@@ -71,7 +72,8 @@ final class DboxApiClientCreateResult
      * Creates a failure result with error details.
      *
      * @param array<string, int|string> $error Error information describing the failure
-     * @return self
+     *
+     * @return self Instance representing a failed result
      */
     public static function failure(array $error): self
     {
@@ -81,7 +83,7 @@ final class DboxApiClientCreateResult
     /**
      * Returns true if the client creation was successful.
      *
-     * @return bool
+     * @return bool True if the client was successfully created
      */
     public function isSuccess(): bool
     {

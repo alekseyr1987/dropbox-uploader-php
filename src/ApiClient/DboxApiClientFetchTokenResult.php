@@ -7,7 +7,7 @@ namespace Dbox\UploaderApi\ApiClient;
 /**
  * Represents the result of fetching a Dropbox API access token.
  *
- * Encapsulates both successful and failed creation attempts.
+ * Encapsulates both successful and failed token fetch attempts.
  *
  * On success:
  * - `$success` will be true.
@@ -24,21 +24,21 @@ final class DboxApiClientFetchTokenResult
     /**
      * Indicates whether the token fetch was successful.
      *
-     * @var bool
+     * @var bool True if the token was successfully fetched
      */
     private bool $success;
 
     /**
      * The fetched access token if successful, otherwise null.
      *
-     * @var ?string
+     * @var ?string Non-empty string with the token on success, or null on failure
      */
     private ?string $accessToken;
 
     /**
      * Error details if the token fetch failed. Empty array on success.
      *
-     * @var array<string, int|string>
+     * @var array<string, int|string> Error details describing the cause of failure
      */
     private array $error;
 
@@ -60,7 +60,8 @@ final class DboxApiClientFetchTokenResult
      * Creates a successful result with a non-empty access token.
      *
      * @param string $accessToken The successfully fetched access token
-     * @return self
+     *
+     * @return self Instance representing a successful result
      */
     public static function success(string $accessToken): self
     {
@@ -71,7 +72,8 @@ final class DboxApiClientFetchTokenResult
      * Creates a failure result with error details.
      *
      * @param array<string, int|string> $error Error information describing the failure
-     * @return self
+     *
+     * @return self Instance representing a failed result
      */
     public static function failure(array $error): self
     {
@@ -81,7 +83,7 @@ final class DboxApiClientFetchTokenResult
     /**
      * Returns true if the token fetch was successful.
      *
-     * @return bool
+     * @return bool True if the token was successfully fetched
      */
     public function isSuccess(): bool
     {

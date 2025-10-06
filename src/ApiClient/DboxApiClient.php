@@ -41,7 +41,7 @@ final class DboxApiClient
     /**
      * Guzzle HTTP client used for making API requests.
      *
-     * @var Client
+     * @var Client HTTP client instance
      */
     private Client $client;
 
@@ -61,7 +61,8 @@ final class DboxApiClient
      * Handles exceptions during instantiation and returns a `DboxApiClientCreateResult`.
      *
      * @param array<string, mixed> $config Optional Guzzle client configuration
-     * @return DboxApiClientCreateResult
+     *
+     * @return DboxApiClientCreateResult Result object containing either a `DboxApiClient` instance or error details
      */
     public static function create(array $config = []): DboxApiClientCreateResult
     {
@@ -86,6 +87,7 @@ final class DboxApiClient
      * @param string $refreshToken Dropbox refresh token
      * @param string $appKey Dropbox app key
      * @param string $appSecret Dropbox app secret
+     *
      * @return DboxApiClientFetchTokenResult The result of the token fetch operation
      */
     public function fetchDropboxToken(string $refreshToken, string $appKey, string $appSecret): DboxApiClientFetchTokenResult
@@ -145,6 +147,7 @@ final class DboxApiClient
      *
      * @param ResponseInterface $response HTTP response object
      * @param array<string, mixed> $pathsWithDefaults Keys are field paths, values are default values
+     *
      * @return array<string, mixed> Extracted fields with defaults applied
      */
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
@@ -170,6 +173,7 @@ final class DboxApiClient
      * @param array<string, mixed> $data The array to search
      * @param string $path Colon-delimited path (e.g., "parent:child:0")
      * @param mixed $default Value to return if the path does not exist
+     *
      * @return mixed The value at the path, or default if missing
      */
     private function getValueByPath(array $data, string $path, $default)

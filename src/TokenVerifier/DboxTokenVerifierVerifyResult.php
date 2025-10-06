@@ -7,7 +7,7 @@ namespace Dbox\UploaderApi\TokenVerifier;
 /**
  * Represents the result of verifying a Dropbox API access token.
  *
- * Encapsulates both successful and failed creation attempts.
+ * Encapsulates both successful and failed verification attempts.
  *
  * On success:
  * - `$success` will be true.
@@ -22,14 +22,14 @@ final class DboxTokenVerifierVerifyResult
     /**
      * Indicates whether the token verification was successful.
      *
-     * @var bool
+     * @var bool True if verification succeeded, false otherwise
      */
     private bool $success;
 
     /**
      * Error details if verification failed. Empty array on success.
      *
-     * @var array<string, int|string>
+     * @var array<string, int|string> Error details describing the cause of failure
      */
     private array $error;
 
@@ -48,7 +48,7 @@ final class DboxTokenVerifierVerifyResult
     /**
      * Creates a successful verification result.
      *
-     * @return self
+     * @return self Instance representing a successful result
      */
     public static function success(): self
     {
@@ -59,7 +59,8 @@ final class DboxTokenVerifierVerifyResult
      * Creates a failure result with error details.
      *
      * @param array<string, int|string> $error Error information describing the failure
-     * @return self
+     *
+     * @return self Instance representing a failed result
      */
     public static function failure(array $error): self
     {
@@ -69,7 +70,7 @@ final class DboxTokenVerifierVerifyResult
     /**
      * Returns true if the verification was successful.
      *
-     * @return bool
+     * @return bool True if verification succeeded, false otherwise
      */
     public function isSuccess(): bool
     {

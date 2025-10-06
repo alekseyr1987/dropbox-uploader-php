@@ -17,21 +17,21 @@ final class DboxExceptionAnalyzerInfoResult
     /**
      * Short class name of the exception.
      *
-     * @var string
+     * @var string Exception short class name
      */
     public string $type;
 
     /**
      * Formatted exception message.
      *
-     * @var string
+     * @var string Exception message
      */
     public string $message;
 
     /**
      * Indicates whether the operation should be repeated.
      *
-     * @var bool
+     * @var bool True if operation should be retried, false otherwise
      */
     public bool $repeat;
 
