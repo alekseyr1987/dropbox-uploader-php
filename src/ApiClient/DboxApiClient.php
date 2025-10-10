@@ -149,10 +149,6 @@ final class DboxApiClient
      */
     private function extractJsonFields(ResponseInterface $response, array $pathsWithDefaults): array
     {
-        if (200 !== $response->getStatusCode()) {
-            return $pathsWithDefaults;
-        }
-
         $data = DboxJsonDecoder::decode((string) $response->getBody(), $pathsWithDefaults);
 
         $result = [];
