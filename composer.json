@@ -25,16 +25,24 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.88",
-    "phpstan/phpstan": "^2.1"
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^12.4"
   },
   "autoload": {
     "psr-4": {
       "Dbox\\UploaderApi\\": "src"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Dbox\\UploaderApi\\Tests\\": "tests"
+    }
+  },
   "scripts": {
     "cs": "php-cs-fixer fix",
-    "stan": "phpstan analyse"
+    "stan": "phpstan analyse",
+    "unit": "phpunit",
+    "unit:cover": "phpunit --coverage-html .phpunit.report"
   },
   "minimum-stability": "stable"
 }

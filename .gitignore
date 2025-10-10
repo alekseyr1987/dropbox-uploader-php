@@ -14,3 +14,8 @@ composer.lock
 
 # PHPStan
 phpstan.neon
+
+# PHPUnit
+.phpunit.cache
+.phpunit.report
+phpunit.xml
