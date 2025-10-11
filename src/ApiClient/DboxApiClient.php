@@ -21,7 +21,7 @@ use Psr\Http\Message\ResponseInterface;
  * if ($clientResult->isSuccess()) {
  *     $client = $clientResult->getClient();
  *
- *     $tokenResult = $client->fetchDropboxToken($refreshToken, $appKey, $appSecret);
+ *     $tokenResult = $client->fetchDropboxToken('APrChJVJXAYTTAAAAAANAa5fBLvJJ4L9yS1f0A7FX6CumHfh52L4PhsFu6hamyG_', '1z968ffbd0gnbbo', 'csuqk6t2gmcjdak');
  *
  *     if ($tokenResult->isSuccess()) {
  *         $accessToken = $tokenResult->getAccessToken();
