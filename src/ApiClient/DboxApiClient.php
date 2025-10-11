@@ -169,20 +169,20 @@ final class DboxApiClient
      *
      * @return mixed The value at the path, or default if missing
      */
-    private function getValueByPath(array $data, string $path, $default)
+    private function getValueByPath(array $data, string $path, mixed $default): mixed
     {
         $segments = explode(':', $path);
 
         $current = $data;
 
         foreach ($segments as $segment) {
-            if (is_array($current) && array_key_exists($segment, $current)) {
-                $current = $current[$segment];
-            } elseif (is_array($current) && is_numeric($segment) && array_key_exists((int) $segment, $current)) {
-                $current = $current[(int) $segment];
-            } else {
+            $key = is_numeric($segment) ? (int) $segment : $segment;
+
+            if (!is_array($current) || !array_key_exists($key, $current)) {
                 return $default;
             }
+
+            $current = $current[$key];
         }
 
         return $current;
