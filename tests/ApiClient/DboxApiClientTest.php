@@ -53,7 +53,7 @@ final class DboxApiClientTest extends TestCase {
 
     public function testFetchTokenSuccessWithValidAccessToken(): void
     {
-        $client = $this->createClientWithMock([$this->createHttp200Response()]);
+        $client = $this->createClientWithMock([$this->createHttp200Response(['access_token' => 'fake-access-token'])]);
 
         $tokenResult = $client->fetchDropboxToken('fake-refresh', 'fake-key', 'fake-secret');
 
@@ -65,7 +65,7 @@ final class DboxApiClientTest extends TestCase {
 
     public function testFetchTokenFailureWhenAccessTokenIsMissing(): void
     {
-        $client = $this->createClientWithMock([$this->createHttp200Response(null)]);
+        $client = $this->createClientWithMock([$this->createHttp200Response(['client_id' => 514])]);
 
         $tokenResult = $client->fetchDropboxToken('fake-refresh', 'fake-key', 'fake-secret');
 
@@ -122,9 +122,9 @@ final class DboxApiClientTest extends TestCase {
         return $clientResult->getClient();
     }
 
-    private function createHttp200Response(?string $access_token = 'fake-access-token'): Response
+    private function createHttp200Response(array $body): Response
     {
-        return new Response(200, ['Content-Type' => 'application/json'], json_encode(['access_token' => $access_token]));
+        return new Response(200, ['Content-Type' => 'application/json'], json_encode($body));
     }
 
     private function createHttp429Response(): Response
