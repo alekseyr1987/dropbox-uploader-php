@@ -152,8 +152,7 @@ final class DboxTokenVerifier
             'local' => [
                 'path' => 'string',
             ],
-            // TODO: Uncomment the necessary types as they are implemented.
-            /*'redis' => [
+            'redis' => [
                 'host' => 'string',
                 'port' => 'int',
                 'credentials' => 'string',
@@ -165,7 +164,7 @@ final class DboxTokenVerifier
                 'password' => 'string',
                 'database' => 'string',
                 'port' => 'int',
-            ],*/
+            ],
         ];
 
         if (!array_key_exists($storeType, $rules)) {
