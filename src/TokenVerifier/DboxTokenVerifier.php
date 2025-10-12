@@ -98,20 +98,21 @@ final class DboxTokenVerifier
      *
      * Performs validation or fetches a new token from Dropbox via `DboxApiClient` if required. Handles exceptions and returns a result object encapsulating success or failure.
      *
-     * @param string $refreshToken Dropbox refresh token
-     * @param string $appKey       Dropbox app key
-     * @param string $appSecret    Dropbox app secret
+     * @param string               $refreshToken Dropbox refresh token
+     * @param string               $appKey       Dropbox app key
+     * @param string               $appSecret    Dropbox app secret
+     * @param array<string, mixed> $clientConfig Optional Guzzle client configuration
      *
      * @return DboxTokenVerifierVerifyResult The result of token verification
      */
-    public function verify(string $refreshToken, string $appKey, string $appSecret): DboxTokenVerifierVerifyResult
+    public function verify(string $refreshToken, string $appKey, string $appSecret, array $clientConfig = []): DboxTokenVerifierVerifyResult
     {
         try {
             if ($this->handleStoreTypeAction('validate')) {
                 return DboxTokenVerifierVerifyResult::success();
             }
 
-            $clientResult = DboxApiClient::create();
+            $clientResult = DboxApiClient::create($clientConfig);
 
             if (!$clientResult->isSuccess()) {
                 return DboxTokenVerifierVerifyResult::failure($clientResult->getError());
