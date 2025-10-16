@@ -214,7 +214,7 @@ final class DboxTokenVerifier
 
         switch ($this->config['store_type']) {
             case 'local':
-                $baseDir = DIRECTORY_SEPARATOR.trim((string) $this->config['path'], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'dbox_uploader';
+                $baseDir = trim((string) $this->config['path'], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'dbox_uploader';
                 $filePath = $baseDir.DIRECTORY_SEPARATOR.'token.json';
 
                 if (!is_dir($baseDir) && !mkdir($baseDir, 0755, true)) {
