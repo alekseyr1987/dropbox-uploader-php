@@ -8,6 +8,8 @@ use Dbox\UploaderApi\TokenVerifier\DboxTokenVerifier;
 use Dbox\UploaderApi\TokenVerifier\DboxTokenVerifierCreateResult;
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzerInfoResult;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +19,13 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DboxExceptionAnalyzer::class)]
 #[CoversClass(DboxExceptionAnalyzerInfoResult::class)]
 final class DboxTokenVerifierTest extends TestCase {
+    protected static vfsStreamDirectory $root;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$root = vfsStream::setup('tmp', 1777);
+    }
+
     #[DataProvider('validConfigurationProvider')]
     public function testCreateVerifierSuccessWithMultipleConfiguration(array $config): void
     {
@@ -32,7 +41,7 @@ final class DboxTokenVerifierTest extends TestCase {
     {
         return [
             'store_type -> local' => [
-                ['store_type' => 'local', 'path' => __DIR__ . '/../.cache']
+                ['store_type' => 'local', 'path' => 'vfs://tmp']
             ],
             'store_type -> redis' => [
                 ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => 'admin', 'db' => 0]
