@@ -19,7 +19,7 @@ use Dbox\UploaderApi\Utils\JsonDecoder\DboxJsonDecoder;
  * ```
  * $verifierResult = DboxTokenVerifier::create([
  *     'store_type' => 'local',
- *     'path' => __DIR__ . '/tmp'
+ *     'path' => 'tmp'
  * ]);
  *
  * if ($verifierResult->isSuccess()) {
