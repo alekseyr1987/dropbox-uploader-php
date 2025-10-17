@@ -274,13 +274,11 @@ final class DboxTokenVerifier
                 } else {
                     $modificationTime = filemtime($itemPath);
 
-                    if (false === $modificationTime) {
+                    if (false === $modificationTime || time() - $modificationTime < 3600) {
                         continue;
                     }
 
-                    if (time() - $modificationTime >= 3600) {
-                        $this->removeLocalDirectoriesWithFiles($itemPath, true);
-                    }
+                    $this->removeLocalDirectoriesWithFiles($itemPath, true);
                 }
             } else {
                 if ($recursion) {
