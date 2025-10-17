@@ -254,41 +254,24 @@ final class DboxTokenVerifier
     }
 
     /**
-     * Recursively removes directories and files for local storage.
+     * Deletes first-level subdirectories and their files if older than 1 hour.
      *
-     * @param string $baseDir   Base directory to clean
-     * @param bool   $recursion Whether the call is recursive
+     * @param string $baseDir Base directory to clean
      */
-    private function removeLocalDirectoriesWithFiles(string $baseDir, bool $recursion = false): void
+    private function removeLocalDirectoriesWithFiles(string $baseDir): void
     {
-        foreach (scandir($baseDir) as $item) {
-            if ('.' === $item || '..' === $item) {
+        foreach (array_diff(scandir($baseDir), ['.', '..']) as $baseItem) {
+            $baseItemPath = $baseDir.DIRECTORY_SEPARATOR.$baseItem;
+
+            if (is_file($baseItemPath) || time() - filemtime($baseItemPath) < 3600) {
                 continue;
             }
 
-            $itemPath = $baseDir.DIRECTORY_SEPARATOR.$item;
-
-            if (is_dir($itemPath)) {
-                if ($recursion) {
-                    $this->removeLocalDirectoriesWithFiles($itemPath, $recursion);
-                } else {
-                    $modificationTime = filemtime($itemPath);
-
-                    if (false === $modificationTime || time() - $modificationTime < 3600) {
-                        continue;
-                    }
-
-                    $this->removeLocalDirectoriesWithFiles($itemPath, true);
-                }
-            } else {
-                if ($recursion) {
-                    unlink($itemPath);
-                }
+            foreach (array_diff(scandir($baseItemPath), ['.', '..']) as $subItem) {
+                unlink($baseItemPath.DIRECTORY_SEPARATOR.$subItem);
             }
-        }
 
-        if ($recursion) {
-            rmdir($baseDir);
+            rmdir($baseItemPath);
         }
     }
 
