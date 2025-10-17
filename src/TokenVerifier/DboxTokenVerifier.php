@@ -261,13 +261,7 @@ final class DboxTokenVerifier
      */
     private function removeLocalDirectoriesWithFiles(string $baseDir, bool $recursion = false): void
     {
-        $items = scandir($baseDir);
-
-        if (false === $items) {
-            throw new \RuntimeException("Unable to scan directory: '{$baseDir}'.");
-        }
-
-        foreach ($items as $item) {
+        foreach (scandir($baseDir) as $item) {
             if ('.' === $item || '..' === $item) {
                 continue;
             }
@@ -289,14 +283,14 @@ final class DboxTokenVerifier
                     }
                 }
             } else {
-                if ($recursion && !unlink($itemPath)) {
-                    throw new \RuntimeException("Unable to delete file: '{$itemPath}'.");
+                if ($recursion) {
+                    unlink($itemPath);
                 }
             }
         }
 
-        if ($recursion && !rmdir($baseDir)) {
-            throw new \RuntimeException("Unable to remove directory: '{$baseDir}'.");
+        if ($recursion) {
+            rmdir($baseDir);
         }
     }
 
