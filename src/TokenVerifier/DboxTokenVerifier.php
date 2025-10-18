@@ -294,23 +294,7 @@ final class DboxTokenVerifier
             return false;
         }
 
-        $fileContent = file_get_contents($filePath);
-
-        if (false === $fileContent) {
-            throw new \RuntimeException("Failed to read token file: '{$filePath}'.");
-        }
-
-        $data = DboxJsonDecoder::decode($fileContent, [], $filePath);
-
-        if (!array_key_exists('expires_in', $data)) {
-            throw new \UnexpectedValueException("Missing 'expires_in' field in token file: '{$filePath}'.");
-        }
-
-        if (!is_int($data['expires_in'])) {
-            throw new \UnexpectedValueException("Invalid 'expires_in' type, expected int in token file: '{$filePath}'.");
-        }
-
-        if (time() >= $data['expires_in']) {
+        if (time() >= DboxJsonDecoder::decode(file_get_contents($filePath), [], $filePath)['expires_in']) {
             return false;
         }
 
@@ -324,17 +308,12 @@ final class DboxTokenVerifier
      */
     private function writeLocalToken(string $filePath): void
     {
-        $json = json_encode([
-            'access_token' => $this->access_token,
-            'expires_in' => time() + 10800,
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-        if (false === $json) {
-            throw new \RuntimeException("Unable to encode data to JSON: '{$filePath}'.");
-        }
-
-        if (false === file_put_contents($filePath, $json)) {
-            throw new \RuntimeException("Unable to write data to file: '{$filePath}'.");
-        }
+        file_put_contents($filePath, json_encode(
+            [
+                'access_token' => $this->access_token,
+                'expires_in' => time() + 10800,
+            ],
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        ));
     }
 }
