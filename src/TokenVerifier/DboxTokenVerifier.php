@@ -66,7 +66,7 @@ final class DboxTokenVerifier
 
         $this->validateConfig();
 
-        $this->handleStoreTypeAction('clean');
+        $this->handleStoreTypeAction('prepare');
     }
 
     /**
@@ -202,9 +202,9 @@ final class DboxTokenVerifier
     }
 
     /**
-     * Handles store-type-specific actions such as cleaning, validating, or writing tokens.
+     * Handles store-type-specific actions such as preparing, validating, or writing tokens.
      *
-     * @param string $type Action type: 'clean', 'validate', or 'write'
+     * @param string $type Action type: 'prepare', 'validate', or 'write'
      *
      * @return bool True if action succeeded (for validate), false otherwise
      */
@@ -217,14 +217,8 @@ final class DboxTokenVerifier
                 $baseDir = trim((string) $this->config['path'], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'dbox_uploader';
                 $filePath = $baseDir.DIRECTORY_SEPARATOR.'token.json';
 
-                if (!is_dir($baseDir)) {
-                    if (!mkdir($baseDir, 0755, true)) {
-                        throw new \RuntimeException("Failed to create required local storage directory: '{$baseDir}'.");
-                    }
-                }
-
-                if ('clean' === $type) {
-                    $this->cleanLocalDirectoriesWithFiles($baseDir);
+                if ('prepare' === $type) {
+                    $this->prepareLocalDirectoriesAndFiles($baseDir);
                 }
 
                 if ('validate' === $type) {
@@ -256,12 +250,18 @@ final class DboxTokenVerifier
     }
 
     /**
-     * Deletes first-level subdirectories and their files if older than 1 hour.
+     * Ensures the base directory exists and deletes first-level subdirectories and their files if older than 1 hour.
      *
-     * @param string $baseDir Base directory to clean
+     * @param string $baseDir Base directory to prepare and clean
      */
-    private function cleanLocalDirectoriesWithFiles(string $baseDir): void
+    private function prepareLocalDirectoriesAndFiles(string $baseDir): void
     {
+        if (!is_dir($baseDir)) {
+            if (!mkdir($baseDir, 0755, true)) {
+                throw new \RuntimeException("Failed to create required local storage directory: '{$baseDir}'.");
+            }
+        }
+
         foreach (array_diff(scandir($baseDir), ['.', '..']) as $baseItem) {
             $baseItemPath = $baseDir.DIRECTORY_SEPARATOR.$baseItem;
 
