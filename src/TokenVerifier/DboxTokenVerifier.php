@@ -294,7 +294,7 @@ final class DboxTokenVerifier
             return false;
         }
 
-        if (time() >= DboxJsonDecoder::decode(file_get_contents($filePath), [], $filePath)['expires_in']) {
+        if (time() >= DboxJsonDecoder::decode((string) file_get_contents($filePath), [], $filePath)['expires_in']) {
             return false;
         }
 
