@@ -66,7 +66,7 @@ final class DboxTokenVerifier
 
         $this->validateConfig();
 
-        $this->handleStoreTypeAction('remove');
+        $this->handleStoreTypeAction('clean');
     }
 
     /**
@@ -202,9 +202,9 @@ final class DboxTokenVerifier
     }
 
     /**
-     * Handles store-type-specific actions such as writing, validating, or removing tokens.
+     * Handles store-type-specific actions such as cleaning, validating, or writing tokens.
      *
-     * @param string $type Action type: 'remove', 'validate', or 'write'
+     * @param string $type Action type: 'clean', 'validate', or 'write'
      *
      * @return bool True if action succeeded (for validate), false otherwise
      */
@@ -221,8 +221,8 @@ final class DboxTokenVerifier
                     throw new \RuntimeException("Unable to create directory: '{$baseDir}'.");
                 }
 
-                if ('remove' === $type) {
-                    $this->removeLocalDirectoriesWithFiles($baseDir);
+                if ('clean' === $type) {
+                    $this->cleanLocalDirectoriesWithFiles($baseDir);
                 }
 
                 if ('validate' === $type) {
@@ -258,7 +258,7 @@ final class DboxTokenVerifier
      *
      * @param string $baseDir Base directory to clean
      */
-    private function removeLocalDirectoriesWithFiles(string $baseDir): void
+    private function cleanLocalDirectoriesWithFiles(string $baseDir): void
     {
         foreach (array_diff(scandir($baseDir), ['.', '..']) as $baseItem) {
             $baseItemPath = $baseDir.DIRECTORY_SEPARATOR.$baseItem;
