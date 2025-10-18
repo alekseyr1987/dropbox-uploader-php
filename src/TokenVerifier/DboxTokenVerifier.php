@@ -265,7 +265,11 @@ final class DboxTokenVerifier
         foreach (array_diff(scandir($baseDir), ['.', '..']) as $baseItem) {
             $baseItemPath = $baseDir.DIRECTORY_SEPARATOR.$baseItem;
 
-            if (is_file($baseItemPath) || time() - filemtime($baseItemPath) < 3600) {
+            if (is_file($baseItemPath)) {
+                continue;
+            }
+
+            if (time() - filemtime($baseItemPath) < 3600) {
                 continue;
             }
 
