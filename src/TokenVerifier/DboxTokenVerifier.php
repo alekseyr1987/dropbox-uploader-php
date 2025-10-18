@@ -217,8 +217,10 @@ final class DboxTokenVerifier
                 $baseDir = trim((string) $this->config['path'], DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'dbox_uploader';
                 $filePath = $baseDir.DIRECTORY_SEPARATOR.'token.json';
 
-                if (!is_dir($baseDir) && !mkdir($baseDir, 0755, true)) {
-                    throw new \RuntimeException("Unable to create directory: '{$baseDir}'.");
+                if (!is_dir($baseDir)) {
+                    if (!mkdir($baseDir, 0755, true)) {
+                        throw new \RuntimeException("Failed to create required local storage directory: '{$baseDir}'.");
+                    }
                 }
 
                 if ('clean' === $type) {
