@@ -21,7 +21,9 @@
   "require": {
     "php": "^7.2.5 || ^8.0",
     "guzzlehttp/guzzle": "^7.10",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-redis": "*",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.88",
