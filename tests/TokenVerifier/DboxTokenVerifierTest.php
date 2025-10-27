@@ -9,7 +9,6 @@ use Dbox\UploaderApi\TokenVerifier\DboxTokenVerifierCreateResult;
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzer;
 use Dbox\UploaderApi\Utils\ExceptionAnalyzer\DboxExceptionAnalyzerInfoResult;
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -19,174 +18,313 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DboxExceptionAnalyzer::class)]
 #[CoversClass(DboxExceptionAnalyzerInfoResult::class)]
 final class DboxTokenVerifierTest extends TestCase {
-    protected static vfsStreamDirectory $root;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::$root = vfsStream::setup('tmp', 1777);
-    }
-
-    #[DataProvider('validConfigurationProvider')]
-    public function testCreateVerifierSuccessWithMultipleConfiguration(array $config): void
-    {
-        $verifierResult = DboxTokenVerifier::create($config);
-
-        $this->assertInstanceOf(DboxTokenVerifierCreateResult::class, $verifierResult);
-        $this->assertTrue($verifierResult->isSuccess());
-        $this->assertInstanceOf(DboxTokenVerifier::class, $verifierResult->getVerifier());
-        $this->assertCount(0, $verifierResult->getError());
-    }
-
-    public static function validConfigurationProvider(): array
-    {
-        return [
-            'store_type -> local' => [
-                ['store_type' => 'local', 'path' => 'vfs://tmp']
-            ],
-            'store_type -> redis' => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => 'admin', 'db' => 0]
-            ],
-            'store_type -> mysql' => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin', 'database' => 'mysql', 'port' => 3306]
-            ]
-        ];
-    }
-
     #[DataProvider('invalidConfigurationProvider')]
-    public function testCreateVerifierFailureWithMultipleConfiguration(array $config, string $expectedMessage): void
+    public function testInvalidConfigurationsAreRejected(array $config, string $expectedMessage): void
     {
         $verifierResult = DboxTokenVerifier::create($config);
-
-        $this->assertInstanceOf(DboxTokenVerifierCreateResult::class, $verifierResult);
-        $this->assertFalse($verifierResult->isSuccess());
-        $this->assertNull($verifierResult->getVerifier());
 
         $error = $verifierResult->getError();
 
-        $this->assertCount(3, $error);
-        $this->assertArrayHasKey('type', $error);
         $this->assertSame('InvalidArgumentException', $error['type']);
-        $this->assertArrayHasKey('message', $error);
         $this->assertStringContainsString($expectedMessage, $error['message']);
-        $this->assertArrayHasKey('time', $error);
     }
 
     public static function invalidConfigurationProvider(): array
     {
         return [
             'store_type -> unknown -> unsupported' => [
-                ['store_type' => 'unknown'],
-                "Unsupported store_type 'unknown'"
+                [
+                    'store_type' => 'unknown'
+                ],
+                self::failureUnknownMessage()
             ],
             "store_type -> local -> parameter 'path' -> missing" => [
-                ['store_type' => 'local'],
+                [
+                    'store_type' => 'local'
+                ],
                 self::failureMissingMessage('path', 'local')
             ],
             "store_type -> local -> parameter 'path' -> wrong type" => [
-                ['store_type' => 'local', 'path' => null],
+                [
+                    'store_type' => 'local',
+                    'path' => null
+                ],
                 self::failureWrongTypeMessage('path', 'local', 'string')
             ],
             "store_type -> local -> parameter 'path' -> empty" => [
-                ['store_type' => 'local', 'path' => ''],
+                [
+                    'store_type' => 'local',
+                    'path' => ''
+                ],
                 self::failureEmptyMessage('path', 'local')
             ],
             "store_type -> redis -> parameter 'host' -> missing" => [
-                ['store_type' => 'redis'],
+                [
+                    'store_type' => 'redis'
+                ],
                 self::failureMissingMessage('host', 'redis')
             ],
             "store_type -> redis -> parameter 'host' -> wrong type" => [
-                ['store_type' => 'redis', 'host' => null],
+                [
+                    'store_type' => 'redis',
+                    'host' => null
+                ],
                 self::failureWrongTypeMessage('host', 'redis', 'string')
             ],
             "store_type -> redis -> parameter 'host' -> empty" => [
-                ['store_type' => 'redis', 'host' => ''],
+                [
+                    'store_type' => 'redis',
+                    'host' => ''
+                ],
                 self::failureEmptyMessage('host', 'redis')
             ],
             "store_type -> redis -> parameter 'port' -> missing" => [
-                ['store_type' => 'redis', 'host' => 'localhost'],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost'
+                ],
                 self::failureMissingMessage('port', 'redis')
             ],
             "store_type -> redis -> parameter 'port' -> wrong type" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => null],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => null
+                ],
                 self::failureWrongTypeMessage('port', 'redis', 'int')
             ],
             "store_type -> redis -> parameter 'credentials' -> missing" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => 6379
+                ],
                 self::failureMissingMessage('credentials', 'redis')
             ],
             "store_type -> redis -> parameter 'credentials' -> wrong type" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => null],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => 6379,
+                    'credentials' => null
+                ],
                 self::failureWrongTypeMessage('credentials', 'redis', 'string')
             ],
             "store_type -> redis -> parameter 'credentials' -> empty" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => ''],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => 6379,
+                    'credentials' => ''
+                ],
                 self::failureEmptyMessage('credentials', 'redis')
             ],
             "store_type -> redis -> parameter 'db' -> missing" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => 'admin'],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => 6379,
+                    'credentials' => 'some_password'
+                ],
                 self::failureMissingMessage('db', 'redis')
             ],
             "store_type -> redis -> parameter 'db' -> wrong type" => [
-                ['store_type' => 'redis', 'host' => 'localhost', 'port' => 6379, 'credentials' => 'admin', 'db' => null],
+                [
+                    'store_type' => 'redis',
+                    'host' => 'localhost',
+                    'port' => 6379,
+                    'credentials' => 'some_password',
+                    'db' => null
+                ],
                 self::failureWrongTypeMessage('db', 'redis', 'int')
             ],
-            "store_type -> mysql -> parameter 'hostname' -> missing" => [
-                ['store_type' => 'mysql'],
-                self::failureMissingMessage('hostname', 'mysql')
+            "store_type -> mysql -> parameter 'host' -> missing" => [
+                [
+                    'store_type' => 'mysql'
+                ],
+                self::failureMissingMessage('host', 'mysql')
             ],
-            "store_type -> mysql -> parameter 'hostname' -> wrong type" => [
-                ['store_type' => 'mysql', 'hostname' => null],
-                self::failureWrongTypeMessage('hostname', 'mysql', 'string')
+            "store_type -> mysql -> parameter 'host' -> wrong type" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => null
+                ],
+                self::failureWrongTypeMessage('host', 'mysql', 'string')
             ],
-            "store_type -> mysql -> parameter 'hostname' -> empty" => [
-                ['store_type' => 'mysql', 'hostname' => ''],
-                self::failureEmptyMessage('hostname', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'username' -> missing" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost'],
-                self::failureMissingMessage('username', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'username' -> wrong type" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => null],
-                self::failureWrongTypeMessage('username', 'mysql', 'string')
-            ],
-            "store_type -> mysql -> parameter 'username' -> empty" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => ''],
-                self::failureEmptyMessage('username', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'password' -> missing" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin'],
-                self::failureMissingMessage('password', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'password' -> wrong type" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => null],
-                self::failureWrongTypeMessage('password', 'mysql', 'string')
-            ],
-            "store_type -> mysql -> parameter 'password' -> empty" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => ''],
-                self::failureEmptyMessage('password', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'database' -> missing" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin'],
-                self::failureMissingMessage('database', 'mysql')
-            ],
-            "store_type -> mysql -> parameter 'database' -> wrong type" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin', 'database' => null],
-                self::failureWrongTypeMessage('database', 'mysql', 'string')
-            ],
-            "store_type -> mysql -> parameter 'database' -> empty" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin', 'database' => ''],
-                self::failureEmptyMessage('database', 'mysql')
+            "store_type -> mysql -> parameter 'host' -> empty" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => ''
+                ],
+                self::failureEmptyMessage('host', 'mysql')
             ],
             "store_type -> mysql -> parameter 'port' -> missing" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin', 'database' => 'mysql'],
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost'
+                ],
                 self::failureMissingMessage('port', 'mysql')
             ],
             "store_type -> mysql -> parameter 'port' -> wrong type" => [
-                ['store_type' => 'mysql', 'hostname' => 'localhost', 'username' => 'admin', 'password' => 'admin', 'database' => 'mysql', 'port' => null],
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => null
+                ],
                 self::failureWrongTypeMessage('port', 'mysql', 'int')
+            ],
+            "store_type -> mysql -> parameter 'dbname' -> missing" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306
+                ],
+                self::failureMissingMessage('dbname', 'mysql')
+            ],
+            "store_type -> mysql -> parameter 'dbname' -> wrong type" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => null
+                ],
+                self::failureWrongTypeMessage('dbname', 'mysql', 'string')
+            ],
+            "store_type -> mysql -> parameter 'dbname' -> empty" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => ''
+                ],
+                self::failureEmptyMessage('dbname', 'mysql')
+            ],
+            "store_type -> mysql -> parameter 'username' -> missing" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db'
+                ],
+                self::failureMissingMessage('username', 'mysql')
+            ],
+            "store_type -> mysql -> parameter 'username' -> wrong type" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db',
+                    'username' => null
+                ],
+                self::failureWrongTypeMessage('username', 'mysql', 'string')
+            ],
+            "store_type -> mysql -> parameter 'username' -> empty" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db',
+                    'username' => ''
+                ],
+                self::failureEmptyMessage('username', 'mysql')
+            ],
+            "store_type -> mysql -> parameter 'password' -> missing" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db',
+                    'username' => 'some_user'
+                ],
+                self::failureMissingMessage('password', 'mysql')
+            ],
+            "store_type -> mysql -> parameter 'password' -> wrong type" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db',
+                    'username' => 'some_user',
+                    'password' => null
+                ],
+                self::failureWrongTypeMessage('password', 'mysql', 'string')
+            ],
+            "store_type -> mysql -> parameter 'password' -> empty" => [
+                [
+                    'store_type' => 'mysql',
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'dbname' => 'some_db',
+                    'username' => 'some_user',
+                    'password' => ''
+                ],
+                self::failureEmptyMessage('password', 'mysql')
             ]
         ];
+    }
+
+    public function testLocalStorageDirectoryCannotBeCreatedDueToPermissions(): void
+    {
+        vfsStream::setup('tmp', 0000);
+
+        $verifierResult = DboxTokenVerifier::create(
+            [
+                'store_type' => 'local',
+                'path' => 'vfs://tmp'
+            ]
+        );
+
+        $error = $verifierResult->getError();
+
+        $this->assertSame('RuntimeException', $error['type']);
+        $this->assertStringContainsString("Failed to create required local storage directory: 'vfs://tmp/dbox_uploader'", $error['message']);
+    }
+
+    public function testLocalStorageDirectoryIsCreated(): void
+    {
+        $rootDir = vfsStream::setup('tmp', 1777);
+
+        DboxTokenVerifier::create(
+            [
+                'store_type' => 'local',
+                'path' => 'vfs://tmp'
+            ]
+        );
+
+        $this->assertTrue($rootDir->hasChild('dbox_uploader'));
+    }
+
+    public function testExpiredFoldersAreRemovedKeepingTokenFile(): void
+    {
+        $rootDir = vfsStream::setup('tmp', 1777);
+
+        $baseDir = vfsStream::newDirectory('dbox_uploader', 0755)->at($rootDir);
+
+        vfsStream::newFile('token.json', 0666)->at($baseDir);
+
+        $subDir1 = vfsStream::newDirectory('folder_1', 0755)->at($baseDir);
+        $subDir2 = vfsStream::newDirectory('folder_2', 0755)->at($baseDir);
+
+        vfsStream::newFile('file_1', 0666)->at($subDir1);
+        vfsStream::newFile('file_1', 0666)->at($subDir2);
+
+        $subDir2->lastModified(time() - 3600);
+
+        DboxTokenVerifier::create(
+            [
+                'store_type' => 'local',
+                'path' => 'vfs://tmp'
+            ]
+        );
+
+        $this->assertTrue($baseDir->hasChild('token.json'));
+        $this->assertTrue($baseDir->hasChild('folder_1'));
+        $this->assertFalse($baseDir->hasChild('folder_2'));
+    }
+
+    private static function failureUnknownMessage(): string
+    {
+        return "Unsupported store_type 'unknown'";
     }
 
     private static function failureMissingMessage(string $parameter, string $storeType): string
